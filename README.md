@@ -1,2 +1,3 @@
 # matrix-as-xyz
-matrix-as-xyz provides read and show 4x4 matrix with string like IUCr-ITC coordinate.
+
+空間群の座標を4x4行列に読み込む為のライブラリです。
