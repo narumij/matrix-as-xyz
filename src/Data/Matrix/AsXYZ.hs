@@ -3,80 +3,46 @@ module Data.Matrix.AsXYZ (
   toXYZ,
   ) where
 
-import Data.Matrix
-import Data.List
 import Data.Char
+import Data.Maybe
+import Data.List
+import Data.List.Split
 import Data.Ratio.Form
+import Data.Matrix
   
-rows :: String -> [String]
-rows st = filter (/=",") $ groupBy (\x y -> x /= ',' && y /= ',') $ filter (not . isSpace) st
+rowStr :: String -> [String]
+rowStr = splitOn ","
 
-splitsAt :: [Int] -> [a] -> [[a]]
-splitsAt [] xs = [xs]
-splitsAt (i:is) xs = (take i xs) : splitsAt (map (subtract i) is) (drop i xs)
+elements :: String -> [String]
+elements r = filter (not.null) $ split (keepDelimsL $ oneOf "-+") r
 
-terms :: String -> [String]
-terms r = filter (not . null) $ splitsAt indices r
-  where indices = findIndices (\c -> c == '+' || c == '-') r
+index :: String -> (Int,String)
+index s
+  | lastLetter `elem` concat letters = (head $ mapMaybe colPos letters,init s)
+  | otherwise = (3,s)
+  where lastLetter = last s
+        colPos = elemIndex lastLetter
+        letters = ["xyz","XYZ","abc","ABC"]
+        
+arrangeElement :: String -> [Maybe String]
+arrangeElement st = map (`lookup` pairList) [0..3]
+  where pairList = map index $ elements st
+  
+read' :: Int -> Maybe String -> Form Int
+read' _  Nothing   = INT 0
+read' n (Just "")  = INT n
+read' _ (Just "+") = INT 1
+read' _ (Just "-") = INT (-1)
+read' _ (Just a)   = read a
 
-myHead :: Num a => [Maybe Int] -> Maybe a
-myHead [] = Nothing
-myHead m@(x : xs)
-  | null m = Nothing
-  | otherwise = case x of
-      Nothing -> myHead xs
-      Just xx -> Just (fromIntegral xx)
+readRow :: String -> [Form Int]
+readRow = zipWith ($) (map read' [1,1,1,0]) . arrangeElement
 
-termIndex :: (Eq t,Num t) => String -> t
-termIndex c = case m of Nothing -> 3
-                        Just x -> x
-  where lastIndex = (elemIndex . last) c
-        labels = ["xyz","XYZ","abc","ABC"]
-        m = myHead $ map lastIndex labels
+elementList :: String -> [Form Int]
+elementList str = concatMap readRow (rowStr str) ++ [INT 0,INT 0,INT 0,INT 1]
 
-findKey :: (Eq t,Integral t) => t -> [(t, String)] -> String
-findKey _ [] = ""
-findKey key ((k,v):xs)
-  | key == k = v
-  | otherwise = findKey key xs
-
-row :: String -> [String]
-row st = map (flip findKey t) ([0..3] :: [Integer])
-  where t = map (\x->(termIndex x,x)) $ terms st
-
-arrange :: String -> String
-arrange s
-    | any (flip elem "xXyYzZaAbBcC") s =
-      if any (flip elem ['0' .. '9']) ss then ss else ss ++ ['1']
-    | null s = "0"
-    | otherwise = s
-    where ss = init s
-
-listXYZas4x3 :: String -> [[String]]
-listXYZas4x3 str
-  | length m < 3 = error $ "too few ',' in " ++ (show str)
-  | length m > 3 = error $ "too many ',' in " ++ (show str)
-  | otherwise = m
-  where m = map (map arrange) $ map row $ rows str
-
-listXYZas4x4 :: String -> [[String]]
-listXYZas4x4 str = listXYZas4x3 str ++ [["0","0","0","1"]]
-
-listsFromXYZ :: String -> [[String]]
-listsFromXYZ = listXYZas4x4
-
-----------------------------------
-
-lists :: String -> [String]
-lists s = concat $ listsFromXYZ s
-
-readMatrixString :: String -> Matrix String
-readMatrixString s = fromList 4 4 $ lists s
-
-readAsXYZ :: (ReadForm a) => String -> Matrix a
-readAsXYZ s = (fromForm . read') <$> readMatrixString s
-  where read' :: String -> Form Int
-        read' = read
+readMatrix :: String -> Matrix (Form Int)
+readMatrix s = fromList 4 4 $ elementList s
 
 -- |
 -- Create a matirx from xyz coordinate string of spacegroup
@@ -96,7 +62,7 @@ readAsXYZ s = (fromForm . read') <$> readMatrixString s
 -- >                                                              (  9 10 11 12 )
 -- > fromXYZ "x+2y+3z+4,5x+6y+7z+8,9x+10y+11z+12" :: Matrix Int = (  0  0  0  1 )
 fromXYZ :: (ReadForm a) => String -> Matrix a
-fromXYZ = readAsXYZ
+fromXYZ s = fromForm <$> readMatrix s
 
 ----------------------------------
 
