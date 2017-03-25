@@ -10,39 +10,39 @@ import Data.List.Split
 import Data.Ratio.Form
 import Data.Matrix
   
-rowStr :: String -> [String]
-rowStr = splitOn ","
+rows :: String -> [String]
+rows = splitOn ","
 
 elements :: String -> [String]
 elements r = filter (not.null) $ split (keepDelimsL $ oneOf "-+") r
 
-index :: String -> (Int,String)
-index s
-  | lastLetter `elem` concat letters = (head $ mapMaybe colPos letters,init s)
-  | otherwise = (3,s)
-  where lastLetter = last s
-        colPos = elemIndex lastLetter
-        letters = ["xyz","XYZ","abc","ABC"]
-        
-arrangeElement :: String -> [Maybe String]
-arrangeElement st = map (`lookup` pairList) [0..3]
-  where pairList = map index $ elements st
-  
-read' :: Int -> Maybe String -> Form
-read' _  Nothing   = INT 0
-read' n (Just "")  = INT (fromIntegral n)
-read' _ (Just "+") = INT 1
-read' _ (Just "-") = INT (-1)
-read' _ (Just a)   = read a
+readElement :: String -> Form
+readElement ""  = INT 1
+readElement "+" = INT 1
+readElement "-" = INT (-1)
+readElement a   = read a
 
-readRow :: String -> [Form]
-readRow = zipWith ($) (map read' [1,1,1,0]) . arrangeElement
+item :: String -> (Int,Form)
+item s | isAlpha lastChar && lastChar `elem` concat vars
+        = ( idx, readElement (init s) )
+        | otherwise
+        = ( 3, readElement s )
+  where lastChar = last s
+        colPos = elemIndex lastChar
+        vars = ["xyz","XYZ","abc","ABC"]
+        idx = head $ mapMaybe colPos vars
 
-elementList :: String -> [Form]
-elementList str = concatMap readRow (rowStr str) ++ [INT 0,INT 0,INT 0,INT 1]
+rowElements :: String -> [Form]
+rowElements st = map pickup [0..3]
+  where
+    pickup = fromMaybe (INT 0) . (`lookup` pList)
+    pList = map item $ elements st
 
-readMatrix :: String -> Matrix (Form)
-readMatrix s = fromList 4 4 $ elementList s
+allElements :: String -> [Form]
+allElements s = concatMap rowElements (rows s) ++ [INT 0,INT 0,INT 0,INT 1]
+
+readMatrix :: String -> Matrix Form
+readMatrix s = fromList 4 4 $ allElements s
 
 -- |
 -- Create a matirx from xyz coordinate string of spacegroup
