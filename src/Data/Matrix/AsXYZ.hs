@@ -28,20 +28,20 @@ arrangeElement :: String -> [Maybe String]
 arrangeElement st = map (`lookup` pairList) [0..3]
   where pairList = map index $ elements st
   
-read' :: Int -> Maybe String -> Form Int
+read' :: Int -> Maybe String -> Form
 read' _  Nothing   = INT 0
-read' n (Just "")  = INT n
+read' n (Just "")  = INT (fromIntegral n)
 read' _ (Just "+") = INT 1
 read' _ (Just "-") = INT (-1)
 read' _ (Just a)   = read a
 
-readRow :: String -> [Form Int]
+readRow :: String -> [Form]
 readRow = zipWith ($) (map read' [1,1,1,0]) . arrangeElement
 
-elementList :: String -> [Form Int]
+elementList :: String -> [Form]
 elementList str = concatMap readRow (rowStr str) ++ [INT 0,INT 0,INT 0,INT 1]
 
-readMatrix :: String -> Matrix (Form Int)
+readMatrix :: String -> Matrix (Form)
 readMatrix s = fromList 4 4 $ elementList s
 
 -- |

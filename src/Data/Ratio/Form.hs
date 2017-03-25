@@ -6,14 +6,18 @@ module Data.Ratio.Form (
   showForm,
   ) where
 
-import Control.Monad
+
+import Numeric
+import Control.Applicative
 import Data.Ratio
 
+
 -- |
--- Simple rational form data.
+-- temporary Number
 --
-data Form a = INT a | RATIO a a
+data Form = INT Integer | RATIO Rational | FLOAT Double
                   deriving (Eq)
+
 
 -- |
 -- for convert rational form to some numeric.
@@ -23,7 +27,8 @@ data Form a = INT a | RATIO a a
 -- >>> map fromForm $ read "[1/2,1/3,1/4]" :: [Rational]
 -- [1 % 2,1 % 3,1 % 4]
 class ReadForm a where
-  fromForm :: (Integral b,Read b) => Form b -> a
+  fromForm :: Form -> a
+
 
 -- |
 -- show rational as simple slash form
@@ -37,45 +42,41 @@ class ReadForm a where
 class (Num a,Ord a) => ShowForm a where
   showForm :: a -> String
 
-instance (Read a,Integral a) => Read (Form a) where
-  readsPrec _ n = join . sequence [a'',b'',a',b',a,b] $ n
-    where
-      a'' n = do
-        ("+",st0) <- lex n
-        (numer,st1) <- lex st0
-        ("/",st2) <- lex st1
-        (denom,st3) <- lex st2
-        return (RATIO (read numer) (read denom), st3)
-      b'' n = do
-        ("+",st0) <- lex n
-        (numer,st1) <- lex st0
-        return (INT (read numer), st1)
-      a' n = do
-        ("-",st0) <- lex n
-        (numer,st1) <- lex st0
-        ("/",st2) <- lex st1
-        (denom,st3) <- lex st2
-        return (RATIO ((read numer) * (-1)) (read denom), st3)
-      b' n = do
-        ("-",st0) <- lex n
-        (numer,st1) <- lex st0
-        return (INT $ (read numer) * (-1), st1)
-      a n = do
-        (numer, st0) <- lex n
-        ("/", st1) <- lex st0
-        (denom, st2) <- lex st1
-        return (RATIO (read numer) (read denom), st2)
-      b n = do
-        (numer, st0) <- lex n
-        return (INT (read numer), st0)
 
-instance (Show a) => Show (Form a) where
+readsInt :: Int -> ReadS Form
+readsInt d n = do
+  (i,st) <- readSigned readDec n
+  return (INT i,st)
+
+readsRat :: Int -> ReadS Form
+readsRat d n = do
+  (numer,st) <- readSigned readDec n
+  ("/",st1) <- lex st
+  (denom,st2) <- readDec st1
+  return (RATIO (numer%denom),st2)
+
+readsFlt :: Int -> ReadS Form
+readsFlt d n = do
+  (flt,st) <- readSigned readFloat n
+  return (FLOAT flt,st)
+
+readsNumber :: Int -> ReadS Form
+readsNumber d n = take 1 $ readsRat d n <|> readsInt d n <|> readsFlt d n
+
+readsPlusNumber :: Int -> ReadS Form
+readsPlusNumber d n = do
+  ("+",st) <- lex n
+  readsNumber d st
+
+
+instance Read Form where
+  readsPrec d n = readsPlusNumber d n <|> readsNumber d n
+  
+instance Show Form where
   showsPrec _ (INT n) = showString $ show n
-  showsPrec _ (RATIO n d) = showString $ (show n) ++ "/" ++ (show d)
+  showsPrec _ (RATIO n) = showString $ (show (numerator n)) ++ "/" ++ (show (denominator n))
+  showsPrec _ (FLOAT n) = showString (show n)
 
-instance Functor Form where
-  fmap f (INT a) = INT (f a)
-  fmap f (RATIO a b) = RATIO (f a) (f b)
 
 instance ReadForm Float where
   fromForm = fromRational . fromForm
@@ -89,9 +90,11 @@ instance ReadForm Int where
 instance ReadForm Integer where
   fromForm form = truncate (fromForm form :: Rational)
 
-instance (Integral a,Read a) => ReadForm (Ratio a) where
-  fromForm (INT a) = (fromIntegral a) % 1
-  fromForm (RATIO a b) = (fromIntegral a) % (fromIntegral b)
+instance (Integral a) => ReadForm (Ratio a) where
+  fromForm (INT a) = fromIntegral a % 1
+  fromForm (RATIO a) = fromIntegral (numerator a) % fromIntegral (denominator a)
+  fromForm (FLOAT a) = realToFrac a
+
 
 instance ShowForm Float where
   showForm = show
@@ -106,5 +109,7 @@ instance ShowForm Integer where
   showForm = show
 
 instance (Integral a,Show a) => ShowForm (Ratio a) where
-  showForm a = if denominator a == 1 then show . numerator $ a
+  showForm a = if denominator a == 1
+               then show . numerator $ a
                else (show . numerator $ a) ++ "/" ++ (show . denominator $ a)
+

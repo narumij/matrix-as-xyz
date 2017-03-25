@@ -42,4 +42,5 @@ Test-Suite spec
   build-depends: base
                , hspec
                , QuickCheck
+               , matrix
                , matrix-as-xyz
