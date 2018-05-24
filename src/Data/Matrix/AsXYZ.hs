@@ -1,48 +1,20 @@
 module Data.Matrix.AsXYZ (
   fromXYZ,
-  toXYZ,
+  fromXYZ',-- maybe version
+  fromABC,
+  prettyXYZ,
+  prettyABC,
   ) where
 
+import Numeric
 import Data.Char
-import Data.Maybe
 import Data.List
-import Data.List.Split
-import Data.Ratio.Form
-import Data.Matrix
-  
-rows :: String -> [String]
-rows = splitOn ","
+import Data.Ratio
+import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
+import Text.ParserCombinators.Parsec
 
-elements :: String -> [String]
-elements r = filter (not.null) $ split (keepDelimsL $ oneOf "-+") r
-
-readElement :: String -> Form
-readElement ""  = INT 1
-readElement "+" = INT 1
-readElement "-" = INT (-1)
-readElement a   = read a
-
-item :: String -> (Int,Form)
-item s | isAlpha lastChar && lastChar `elem` concat vars
-        = ( idx, readElement (init s) )
-        | otherwise
-        = ( 3, readElement s )
-  where lastChar = last s
-        colPos = elemIndex lastChar
-        vars = ["xyz","XYZ","abc","ABC"]
-        idx = head $ mapMaybe colPos vars
-
-rowElements :: String -> [Form]
-rowElements st = map pickup [0..3]
-  where
-    pickup = fromMaybe (INT 0) . (`lookup` pList)
-    pList = map item $ elements st
-
-allElements :: String -> [Form]
-allElements s = concatMap rowElements (rows s) ++ [INT 0,INT 0,INT 0,INT 1]
-
-readMatrix :: String -> Matrix Form
-readMatrix s = fromList 4 4 $ allElements s
+import Data.Ratio.Slash
+import Data.Matrix.AsXYZ.Parse
 
 -- |
 -- Create a matirx from xyz coordinate string of spacegroup
@@ -61,35 +33,53 @@ readMatrix s = fromList 4 4 $ allElements s
 -- >                                                              (  5  6  7  8 )
 -- >                                                              (  9 10 11 12 )
 -- > fromXYZ "x+2y+3z+4,5x+6y+7z+8,9x+10y+11z+12" :: Matrix Int = (  0  0  0  1 )
-fromXYZ :: (ReadForm a) => String -> Matrix a
-fromXYZ s = fromForm <$> readMatrix s
+fromXYZ :: Integral a => String -> Matrix (Ratio a)
+fromXYZ input = unsafeGet $ makeMatrix <$> parse (equivalentPositions ratio) input input
+
+fromXYZ' :: Integral a => String -> Maybe (Matrix (Ratio a))
+fromXYZ' input = get $ makeMatrix <$> parse (equivalentPositions ratio) input input
+
+fromABC :: Integral a => String -> Matrix (Ratio a)
+fromABC input = unsafeGet $ makeMatrix <$> parse (transformPpABC ratio) input input
+
+makeMatrix :: Num a => [[a]] -> Matrix a
+makeMatrix m = fromLists m <-> fromLists [[0,0,0,1]]
+
+unsafeGet :: Either ParseError a -> a
+unsafeGet e = case e of
+  Left s -> error $ show s
+  Right m -> m
+
+get :: Either ParseError a -> Maybe a
+get e = case e of
+  Left s -> Nothing
+  Right m -> Just m
 
 ----------------------------------
 
-showRatio :: (ShowForm a) => a -> String
-showRatio n
-  | n < 0 = showForm n
-  | otherwise = "+" ++ showForm n
+signedRatioString :: (Integral a) => Ratio a -> String
+signedRatioString n | head s == '-' = s
+            | otherwise = "+" ++ s
+  where s = show $ Slash n
 
-showElem :: (ShowForm a) => (a, String) -> String
-showElem (num,label)
-  | num == 0 = ""
-  | null label = showRatio num
-  | num == 1 = "+" ++ label
-  | num == -1 = "-" ++ label
-  | otherwise = (showRatio num) ++ label
+varString :: (Integral a) => Ratio a -> String -> String
+varString num label | num == 0 = ""
+                    | null label = signedRatioString num
+                    | num == 1 = "+" ++ label
+                    | num == -1 = "-" ++ label
+                    | otherwise = signedRatioString num ++ label
 
-showPart :: (ShowForm a) => [String] -> [a] -> String
-showPart st line
-  | null s = "0"
-  | head s == '+' = tail s
-  | otherwise = s
-  where parts = map showElem $ zip line st
-        s = foldl1 (++) $ partSort parts
+rowString :: (Integral a) => [String] -> [Ratio a] -> String
+rowString st line | null s = "0"
+                  | head s == '+' = tail s
+                  | otherwise = s
+  where
+     vars = zipWith varString line st
+     s = foldl1 (++) $ varSort vars
 
-partSort :: [String] -> [String]
-partSort parts = case find (\x->((not . null) x) && hasLetter x && isPositive x) parts of
-  Just x -> [x] ++ filter (/=x) parts
+varSort :: [String] -> [String]
+varSort parts = case find (\x->(not . null) x && hasLetter x && isPositive x) parts of
+  Just x -> x : filter (/=x) parts
   Nothing -> parts
   where
     hasLetter = isAlpha . last
@@ -98,21 +88,29 @@ partSort parts = case find (\x->((not . null) x) && hasLetter x && isPositive x)
 xyzLabel :: [String]
 xyzLabel = ["x","y","z",""]
 
-showAs :: (ShowForm a) => [String] -> Matrix a -> String
-showAs labels m = foldl1 (\x y-> x++","++y) $ map (showPart labels) $ take 3 $ toLists m
+abcLabel :: [String]
+abcLabel = ["a","b","c",""]
 
-showAsXYZ :: (ShowForm a) => Matrix a -> String
+showAs :: (Integral a) => [String] -> Matrix (Ratio a) -> String
+showAs labels m = foldl1 (\x y-> x++","++y) $ map (rowString labels) $ take 3 $ toLists m
+
+showAsXYZ :: (Integral a) => Matrix (Ratio a) -> String
 showAsXYZ = showAs xyzLabel
+
+showAsABC :: (Integral a) => Matrix (Ratio a) -> String
+showAsABC = showAs abcLabel
 
 -- | Get the xyz coordinate string of matrix
 --
--- >>> toXYZ (identity 4 :: Matrix Int)
+-- >>> prettyXYZ (identity 4 :: Matrix Int)
 -- "x,y,z"
--- 
--- >       ( 0 % 1 0 % 1 0 % 1 1 % 2 )
--- >       ( 0 % 1 0 % 1 0 % 1 2 % 3 )
--- >       ( 0 % 1 0 % 1 0 % 1 4 % 5 )
--- > toXYZ ( 0 % 1 0 % 1 0 % 1 1 % 1 ) = "1/2,2/3,4/5"
-toXYZ :: (ShowForm a) => Matrix a -> String
-toXYZ = showAsXYZ
+--
+-- >           ( 0 % 1 0 % 1 0 % 1 1 % 2 )
+-- >           ( 0 % 1 0 % 1 0 % 1 2 % 3 )
+-- >           ( 0 % 1 0 % 1 0 % 1 4 % 5 )
+-- > prettyXYZ ( 0 % 1 0 % 1 0 % 1 1 % 1 ) = "1/2,2/3,4/5"
+prettyXYZ :: (Integral a) => Matrix (Ratio a) -> String
+prettyXYZ = showAsXYZ
 
+prettyABC :: (Integral a) => Matrix (Ratio a) -> String
+prettyABC = showAsABC
