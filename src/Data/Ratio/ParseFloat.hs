@@ -87,7 +87,7 @@ exponent' = do
   e <- int
   return $ signPart s $ read' e
 
--- | 浮動小数表記の文字列をパーズし、多倍長整数を使った分数に変換する
+-- | 浮動小数表記の文字列をパーズし、分数に変換する。精度（Intの型）は多相。
 floating :: Integral a => CharParser () (Ratio a)
 floating = do
   s <- optionMaybe sign
