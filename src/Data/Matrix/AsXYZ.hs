@@ -1,6 +1,6 @@
 module Data.Matrix.AsXYZ (
   fromXYZ,
-  fromXYZ',-- maybe version
+  fromXYZ',
   fromABC,
   prettyXYZ,
   prettyABC,
