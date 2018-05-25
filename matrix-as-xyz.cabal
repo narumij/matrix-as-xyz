@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7fe5998ff23242f760c50c910650b1897bd5982325e1f05139ed21a99835cac6
+-- hash: 4f5ac0dd1614736612f504062859b14f37a13477ae921723618bd03e4e3cbcdf
 
 name:           matrix-as-xyz
 version:        0.1.0.0
@@ -28,8 +28,6 @@ library
   exposed-modules:
       Data.Matrix.AsXYZ
       Data.Matrix.AsXYZ.Parse
-      Data.Matrix.CoordinateTriplet
-      Data.Matrix.ReadTriplet
       Data.Ratio.ParseFloat
       Data.Ratio.Slash
   other-modules:
@@ -43,9 +41,6 @@ library
     , hspec
     , matrix
     , parsec
-    , regex-compat
-    , regex-posix
-    , split
   default-language: Haskell2010
 
 test-suite matrix-as-xyz-doctest
@@ -67,9 +62,6 @@ test-suite matrix-as-xyz-doctest
     , matrix
     , matrix-as-xyz
     , parsec
-    , regex-compat
-    , regex-posix
-    , split
   default-language: Haskell2010
 
 test-suite matrix-as-xyz-test
@@ -90,7 +82,4 @@ test-suite matrix-as-xyz-test
     , matrix
     , matrix-as-xyz
     , parsec
-    , regex-compat
-    , regex-posix
-    , split
   default-language: Haskell2010

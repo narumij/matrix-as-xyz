@@ -32,7 +32,7 @@ import Text.ParserCombinators.Parsec
 readFloatingPoint :: String -> Rational
 readFloatingPoint = readFloatingPoint'
 
--- | 
+-- |
 -- >>> readFloatingPoint "1.0"
 -- 1 % 1
 -- >>> readFloatingPoint "0.5"

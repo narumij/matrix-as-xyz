@@ -22,9 +22,8 @@ description:         Please see the README on GitHub at <https://github.com/naru
 dependencies:
 - base >= 4.7 && < 5
 - matrix
-- split
-- regex-compat
-- regex-posix
+# - regex-compat
+# - regex-posix
 - parsec
 - hspec
 - QuickCheck
