@@ -1,11 +1,19 @@
+{- |
+Module      : Data.Matrix.AsXYZ.Parse
+Copyright   : (c) Jun Narumi 2018
+License     : BSD3
+Maintainer  : narumij@gmail.com
+Stability   : experimental
+Portability : ?
+-}
 module Data.Matrix.AsXYZ.Parse (
+  Value,
   equivalentPositions,
   transformPpABC,
   transformQqXYZ,
   ratio,
   integral,
   floating,
-  Value,
   ) where
 
 import Control.Monad
@@ -20,16 +28,25 @@ import Data.Ratio.ParseFloat (readFloatingPoint')
 
 import Data.Matrix (fromList,fromLists,Matrix(..),joinBlocks,(<->))
 
+-- | reader of 3 kind of number description to rational
+--
+-- equivalentPositionsに渡して使う
 ratio :: Integral a => Value -> Either String (Ratio a)
 ratio (I s) = Right $ getRatio . read $ s
 ratio (R s) = Right $ getRatio . read $ s
 ratio (F s) = Right $ readFloatingPoint' s
 
+-- | reader of integral number description to integral
+--
+-- equivalentPositionsに渡して使う
 integral :: Integral a => Value -> Either String a
 integral (I s) = Right $ fromIntegral (read s :: Integer)
 integral (R s) = Left  $ "cannot convert to integer from " ++ s ++ "."
 integral (F s) = Left  $ "cannot convert to integer from " ++ s ++ "."
 
+-- | reader of 3 kind of number description to floating point
+--
+-- equivalentPositionsに渡して使う
 floating :: Floating a => Value -> Either String a
 floating v = fromRational <$> ratio v
 
@@ -44,6 +61,7 @@ instance Functor Val where
   fmap f (F a) = F (f a)
   fmap f (R a) = R (f a)
 
+-- | パーサーが使用する数値文字列を変換する際の中間表現
 type Value = Val String
 
 data Var a
@@ -188,11 +206,16 @@ xyz = oneOf "xyzXYZ"
 abc :: CharParser () Char
 abc = oneOf "abcABC"
 
-equivalentPositions :: Num a => ReadNum a -> CharParser () [[a]]
+-- | general equivalent positions parser
+equivalentPositions :: Num a =>
+　　　　　　　　　　　　　　ReadNum a -- ^ reader of numeric description
+　　　　　　　　　　　　 -> CharParser () [[a]]
 equivalentPositions = components xyz
 
+-- | same as equivalentPositions but uses abc instead of xyz
 transformPpABC :: Num a => ReadNum a -> CharParser () [[a]]
 transformPpABC = components abc
 
+-- | same as equivalentPositions
 transformQqXYZ :: Num a => ReadNum a -> CharParser () [[a]]
 transformQqXYZ = components xyz

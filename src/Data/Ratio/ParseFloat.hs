@@ -1,3 +1,14 @@
+{- |
+Module      : Data.Ratio.ParseFloat
+Copyright   : (c) Jun Narumi 2018
+License     : BSD3
+Maintainer  : narumij@gmail.com
+Stability   : experimental
+Portability : ?
+
+浮動小数の文字列をパースし、なるべく精密に分数に変換する
+
+-}
 module Data.Ratio.ParseFloat (
   floating,
   readFloatingPoint,
@@ -9,6 +20,7 @@ import Text.ParserCombinators.Parsec
 
 -- | 浮動小数表記の文字列を分数に変換する
 --　まだ限界を調べていません
+--
 -- >>> readFloatingPoint "1.0"
 -- 1 % 1
 -- >>> readFloatingPoint "0.5"

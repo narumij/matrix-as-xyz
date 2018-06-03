@@ -1,3 +1,14 @@
+{- |
+Module      : Data.Matrix.AsXYZ
+Copyright   : (c) Jun Narumi 2017-2018
+License     : BSD3
+Maintainer  : narumij@gmail.com
+Stability   : experimental
+Portability : ?
+
+general equivalnet positionと4x4行列の相互変換をする
+
+-}
 module Data.Matrix.AsXYZ (
   fromXYZ,
   fromXYZ',
@@ -16,8 +27,7 @@ import Text.ParserCombinators.Parsec
 import Data.Ratio.Slash
 import Data.Matrix.AsXYZ.Parse
 
--- |
--- Create a matirx from xyz coordinate string of spacegroup
+-- | Create a matirx from xyz coordinate string of general equivalent position
 --
 -- >                                      ( 1 % 1 0 % 1 0 % 1 0 % 1 )
 -- >                                      ( 0 % 1 1 % 1 0 % 1 0 % 1 )
@@ -36,9 +46,11 @@ import Data.Matrix.AsXYZ.Parse
 fromXYZ :: Integral a => String -> Matrix (Ratio a)
 fromXYZ input = unsafeGet $ makeMatrix <$> parse (equivalentPositions ratio) input input
 
+-- | Maybe version
 fromXYZ' :: Integral a => String -> Maybe (Matrix (Ratio a))
 fromXYZ' input = get $ makeMatrix <$> parse (equivalentPositions ratio) input input
 
+-- | uses abc instead of xyz
 fromABC :: Integral a => String -> Matrix (Ratio a)
 fromABC input = unsafeGet $ makeMatrix <$> parse (transformPpABC ratio) input input
 
@@ -112,5 +124,6 @@ showAsABC = showAs abcLabel
 prettyXYZ :: (Integral a) => Matrix (Ratio a) -> String
 prettyXYZ = showAsXYZ
 
+-- | uses abc instead of xyz
 prettyABC :: (Integral a) => Matrix (Ratio a) -> String
 prettyABC = showAsABC

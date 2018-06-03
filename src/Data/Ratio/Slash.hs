@@ -1,14 +1,14 @@
--- |
--- Module      : Data.Ratio.Slash
--- Copyright   : (c) Jun Narumi 2018
--- License     : BSD3
---
--- Maintainer  : narumij@gmail.com
--- Stability   : experimental
--- Portability : non-portable
---
--- %ではなく、/で記述した分数を取り扱う
---
+{- |
+Module      : Data.Ratio.Slash
+Copyright   : (c) Jun Narumi 2018
+License     : BSD3
+Maintainer  : narumij@gmail.com
+Stability   : experimental
+Portability : ?
+
+%ではなく、/で記述した分数を取り扱う
+
+-}
 
 module Data.Ratio.Slash (
   Slash(..),
@@ -20,15 +20,22 @@ import Data.Ratio
 import Numeric
 
 -- |
+-- read instanceとして読み込み、getRatioで取り出す
 --
 -- >>> getRatio . read $ "1/2"
 -- 1 % 2
 --
+-- read instanceなので配列の表現でもまとえて読むことができる
+--
 -- >>> map getRatio . read $ "[1/2,3/4,5/6]"
 -- [1 % 2,3 % 4,5 % 6]
 --
+-- Ratioから直接生成する
+--
 -- >>> Slash (1 % 2)
 -- 1/2
+--
+-- Ratioの配列からまとめて生成する
 --
 -- >>> map Slash [1%2,3%4,5%6]
 -- [1/2,3/4,5/6]
