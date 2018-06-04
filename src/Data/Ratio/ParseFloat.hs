@@ -8,6 +8,11 @@ Portability : ?
 
 Floating point parser
 
+Temporary solution to the problem below
+
+> ghci> realToFrac (read "1.1" :: Double) :: Rational
+> 2476979795053773 % 2251799813685248
+
 -}
 module Data.Ratio.ParseFloat (
   readFloatingPoint,
@@ -17,10 +22,16 @@ module Data.Ratio.ParseFloat (
 import Data.Ratio
 import Text.ParserCombinators.Parsec
 
+-- このような一見、車輪の再発明に思えるコードをわざわざ書いたのは
+-- > realToFrac (read "1.1" :: Double) :: Rational
+-- 2476979795053773 % 2251799813685248
+-- という問題に対処するため。
+-- これ以外に良い方法、良い書き方が分かれば、削除します。
+
 -- | Obtain fractions from floating point representation string
 --
--- >>> readFloatingPoint "1.0"
--- 1 % 1
+-- >>> readFloatingPoint "1.1"
+-- 11 % 10
 -- >>> readFloatingPoint "0.5"
 -- 1 % 2
 -- >>> readFloatingPoint ".5"
