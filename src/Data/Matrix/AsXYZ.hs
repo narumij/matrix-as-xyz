@@ -50,7 +50,12 @@ fromXYZ input = unsafeGet $ makeMatrix <$> parse (equivalentPositions ratio) inp
 fromXYZ' :: Integral a => String -> Maybe (Matrix (Ratio a))
 fromXYZ' input = get $ makeMatrix <$> parse (equivalentPositions ratio) input input
 
--- | uses abc instead of xyz
+-- | It's uses abc instead of xyz
+--
+-- >                                      ( 1 % 1 0 % 1 0 % 1 0 % 1 )
+-- >                                      ( 0 % 1 1 % 1 0 % 1 0 % 1 )
+-- >                                      ( 0 % 1 0 % 1 1 % 1 0 % 1 )
+-- > fromXYZ "a,b,c" :: Matrix Rational = ( 0 % 1 0 % 1 0 % 1 1 % 1 )
 fromABC :: Integral a => String -> Matrix (Ratio a)
 fromABC input = unsafeGet $ makeMatrix <$> parse (transformPpABC ratio) input input
 
@@ -144,7 +149,10 @@ prettyXYZ :: (Integral a) =>
 prettyXYZ = showAs xyzLabel
 
 
--- | uses abc instead of xyz
+-- | It's uses abc instead of xyz
+--
+-- >>> prettyXYZ (identity 4 :: Matrix Int)
+-- "a,b,c"
 prettyABC :: (Integral a) =>
              Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
           -> String
