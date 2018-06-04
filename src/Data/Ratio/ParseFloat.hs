@@ -6,19 +6,19 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-浮動小数の文字列をパースし、なるべく精密に分数に変換する
+Floating point parser
 
 -}
 module Data.Ratio.ParseFloat (
-  floating,
   readFloatingPoint,
+  floating,
   ) where
 
 import Data.Ratio
 import Text.ParserCombinators.Parsec
 
--- | 浮動小数表記の文字列を分数に変換する
---　まだ限界を調べていません
+-- | Obtain fractions from floating point representation string
+--
 -- >>> readFloatingPoint "1.0"
 -- 1 % 1
 -- >>> readFloatingPoint "0.5"
@@ -73,7 +73,7 @@ exponent' = do
   e <- int
   return $ signPart s $ read' e
 
--- | 浮動小数表記の文字列をパーズし、分数に変換する。精度（Intの型）は多相。
+-- | Parser section
 floating :: Integral a => CharParser () (Ratio a)
 floating = do
   s <- optionMaybe sign
@@ -95,6 +95,7 @@ decimalPart "" = 0
 decimalPart f  | read f == 0 = 0
                | otherwise = read' f % (10 ^ length f)
 
+-- 整数型のｒead instanceを隠蔽している
 read' :: Integral a => String -> a
 read' s = fromIntegral (read s :: Integer)
 

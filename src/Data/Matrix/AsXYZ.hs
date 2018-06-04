@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-general equivalnet positionと4x4行列の相互変換をする
+Read ans Display matrix with xyz reperesentation. (like general equivalnet position of International tables of Crystallography.)
 
 -}
 module Data.Matrix.AsXYZ (
@@ -112,8 +112,10 @@ isPositive _       = False
 varSort :: [String] -> [String]
 varSort parts = filter isPrimary parts ++ filter (not . isPrimary) parts
 
+row :: (Integral a) => [String] -> [Ratio a] -> String
 row labels line = join . varSort $ zipWith varString line labels
 
+refineRow :: String -> String
 refineRow s
   -- 全ての項目が省略されていると空文字列になっているので、0
   | null s = "0"
@@ -134,7 +136,7 @@ showAs :: (Integral a) => [String] -> Matrix (Ratio a) -> String
 showAs labels = intercalate "," . map (rowString labels) . take 3 . toLists
 
 
--- | Get the xyz coordinate string of matrix
+-- | Get the xyz representation of matrix
 --
 -- >>> prettyXYZ (identity 4 :: Matrix Int)
 -- "x,y,z"

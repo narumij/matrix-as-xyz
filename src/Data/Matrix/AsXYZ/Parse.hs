@@ -65,7 +65,7 @@ instance Functor Val where
   fmap f (F a) = F (f a)
   fmap f (R a) = R (f a)
 
--- | String with numeric type information generated in the middle
+-- | Type of numeric type information generated in the middle
 type Value = Val String
 
 data Var a
