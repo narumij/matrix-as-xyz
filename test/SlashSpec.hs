@@ -4,15 +4,17 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck hiding ((.&.))
 
+import Control.Monad
 import Data.Ratio
 import Data.Ratio.Slash
 
 spec :: Spec
 spec = do
   describe "rational" $ do
+
     prop "read" $
       \n d -> d /= 0 && n /= 0 && d > 1 && denominator ( n % d ) > 1 ==>
-        ( (read $ foldl1 (++) [show n,"/",show d] ) :: Slash Integer ) `shouldBe` ( Slash $ n % d )
+        ( (read $ join [show n,"/",show d] ) :: Slash Integer ) `shouldBe` ( Slash $ n % d )
 
     prop "both ways" $
       \n d -> d /= 0 && n /= 0 && d > 1 && denominator ( n % d ) > 1 ==>
