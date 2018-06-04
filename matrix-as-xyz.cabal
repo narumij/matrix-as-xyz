@@ -2,10 +2,10 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4f5ac0dd1614736612f504062859b14f37a13477ae921723618bd03e4e3cbcdf
+-- hash: 7803b8831dfff0a88a84e7deb88265304d4ca34569b6db07861b557824cc5bab
 
 name:           matrix-as-xyz
-version:        0.1.0.0
+version:        0.1.1.0
 description:    Please see the README on GitHub at <https://github.com/narumij/matrix-as-xyz#readme>
 homepage:       https://github.com/narumij/matrix-as-xyz#readme
 bug-reports:    https://github.com/narumij/matrix-as-xyz/issues
