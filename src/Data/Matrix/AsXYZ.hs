@@ -1,3 +1,14 @@
+{- |
+Module      : Data.Matrix.AsXYZ
+Copyright   : (c) Jun Narumi 2017-2018
+License     : BSD3
+Maintainer  : narumij@gmail.com
+Stability   : experimental
+Portability : ?
+
+Read and Display matrix with xyz reperesentation. (like general equivalnet position of International tables of Crystallography.)
+
+-}
 module Data.Matrix.AsXYZ (
   fromXYZ,
   fromXYZ',
@@ -6,18 +17,17 @@ module Data.Matrix.AsXYZ (
   prettyABC,
   ) where
 
-import Numeric
-import Data.Char
-import Data.List
-import Data.Ratio
+import Control.Monad (join)
+import Data.Char (isAlpha)
+import Data.List (intercalate)
+import Data.Ratio (Ratio)
 import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
-import Text.ParserCombinators.Parsec
+import Text.ParserCombinators.Parsec (parse,ParseError)
 
-import Data.Ratio.Slash
-import Data.Matrix.AsXYZ.Parse
+import Data.Ratio.Slash (getRatio,Slash(..))
+import Data.Matrix.AsXYZ.Parse (equivalentPositions,transformPpABC,ratio)
 
--- |
--- Create a matirx from xyz coordinate string of spacegroup
+-- | Create a matirx from xyz coordinate string of general equivalent position
 --
 -- >                                      ( 1 % 1 0 % 1 0 % 1 0 % 1 )
 -- >                                      ( 0 % 1 1 % 1 0 % 1 0 % 1 )
@@ -36,9 +46,16 @@ import Data.Matrix.AsXYZ.Parse
 fromXYZ :: Integral a => String -> Matrix (Ratio a)
 fromXYZ input = unsafeGet $ makeMatrix <$> parse (equivalentPositions ratio) input input
 
+-- | Maybe version
 fromXYZ' :: Integral a => String -> Maybe (Matrix (Ratio a))
 fromXYZ' input = get $ makeMatrix <$> parse (equivalentPositions ratio) input input
 
+-- | It's uses abc instead of xyz
+--
+-- >                                      ( 1 % 1 0 % 1 0 % 1 0 % 1 )
+-- >                                      ( 0 % 1 1 % 1 0 % 1 0 % 1 )
+-- >                                      ( 0 % 1 0 % 1 1 % 1 0 % 1 )
+-- > fromXYZ "a,b,c" :: Matrix Rational = ( 0 % 1 0 % 1 0 % 1 1 % 1 )
 fromABC :: Integral a => String -> Matrix (Ratio a)
 fromABC input = unsafeGet $ makeMatrix <$> parse (transformPpABC ratio) input input
 
@@ -57,33 +74,57 @@ get e = case e of
 
 ----------------------------------
 
-signedRatioString :: (Integral a) => Ratio a -> String
-signedRatioString n | head s == '-' = s
-            | otherwise = "+" ++ s
-  where s = show $ Slash n
+-- +または-が銭湯に必ずあるようにする
+addPlusSign :: String -> String
+addPlusSign xs@('-':_) = xs
+addPlusSign xs         = '+' : xs
+
+-- 符号付きの数値文字列にする
+numStr :: (Integral a) => Ratio a -> String
+numStr = addPlusSign . show . Slash
 
 varString :: (Integral a) => Ratio a -> String -> String
-varString num label | num == 0 = ""
-                    | null label = signedRatioString num
-                    | num == 1 = "+" ++ label
-                    | num == -1 = "-" ++ label
-                    | otherwise = signedRatioString num ++ label
+varString num label
+　-- 0の場合省略
+  | num == 0   = ""
+  -- 4番目の項目で、変数が付かない場合、数値文字列化
+  | null label = numStr num
+  -- 数値が1で変数がある場合、数値を省略
+  | num == 1   = "+" ++ label
+  -- 数値が-1で変数がある場合、数値を省略
+  | num == -1  = "-" ++ label
+  -- それ以外では数値と変数を文字列化
+  | otherwise  = numStr num ++ label
+
+-- 正の係数がついた変数である
+isPrimary :: String -> Bool
+isPrimary x = (hasLetter . reverse) x && isPositive x
+
+hasLetter :: String -> Bool
+hasLetter (x:_) = isAlpha x
+hasLetter _     = False
+
+isPositive :: String -> Bool
+isPositive ('+':_) = True
+isPositive _       = False
+
+-- 正の係数がついた変数を先頭にする
+varSort :: [String] -> [String]
+varSort parts = filter isPrimary parts ++ filter (not . isPrimary) parts
+
+row :: (Integral a) => [String] -> [Ratio a] -> String
+row labels line = join . varSort $ zipWith varString line labels
+
+refineRow :: String -> String
+refineRow s
+  -- 全ての項目が省略されていると空文字列になっているので、0
+  | null s = "0"
+  -- 先頭の項目が正の場合、+記号を省略できるので削る
+  | head s == '+' = tail s
+  | otherwise = s
 
 rowString :: (Integral a) => [String] -> [Ratio a] -> String
-rowString st line | null s = "0"
-                  | head s == '+' = tail s
-                  | otherwise = s
-  where
-     vars = zipWith varString line st
-     s = foldl1 (++) $ varSort vars
-
-varSort :: [String] -> [String]
-varSort parts = case find (\x->(not . null) x && hasLetter x && isPositive x) parts of
-  Just x -> x : filter (/=x) parts
-  Nothing -> parts
-  where
-    hasLetter = isAlpha . last
-    isPositive str = head str == '+'
+rowString labels line = refineRow (row labels line)
 
 xyzLabel :: [String]
 xyzLabel = ["x","y","z",""]
@@ -92,25 +133,29 @@ abcLabel :: [String]
 abcLabel = ["a","b","c",""]
 
 showAs :: (Integral a) => [String] -> Matrix (Ratio a) -> String
-showAs labels m = foldl1 (\x y-> x++","++y) $ map (rowString labels) $ take 3 $ toLists m
+showAs labels = intercalate "," . map (rowString labels) . take 3 . toLists
 
-showAsXYZ :: (Integral a) => Matrix (Ratio a) -> String
-showAsXYZ = showAs xyzLabel
 
-showAsABC :: (Integral a) => Matrix (Ratio a) -> String
-showAsABC = showAs abcLabel
-
--- | Get the xyz coordinate string of matrix
+-- | Get the xyz representation of matrix
 --
--- >>> prettyXYZ (identity 4 :: Matrix Int)
+-- >>> prettyXYZ (identity 4 :: Matrix Rational)
 -- "x,y,z"
 --
 -- >           ( 0 % 1 0 % 1 0 % 1 1 % 2 )
 -- >           ( 0 % 1 0 % 1 0 % 1 2 % 3 )
 -- >           ( 0 % 1 0 % 1 0 % 1 4 % 5 )
 -- > prettyXYZ ( 0 % 1 0 % 1 0 % 1 1 % 1 ) = "1/2,2/3,4/5"
-prettyXYZ :: (Integral a) => Matrix (Ratio a) -> String
-prettyXYZ = showAsXYZ
+prettyXYZ :: (Integral a) =>
+             Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
+          -> String
+prettyXYZ = showAs xyzLabel
 
-prettyABC :: (Integral a) => Matrix (Ratio a) -> String
-prettyABC = showAsABC
+
+-- | It's uses abc instead of xyz
+--
+-- >>> prettyABC (identity 4 :: Matrix Rational)
+-- "a,b,c"
+prettyABC :: (Integral a) =>
+             Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
+          -> String
+prettyABC = showAs abcLabel

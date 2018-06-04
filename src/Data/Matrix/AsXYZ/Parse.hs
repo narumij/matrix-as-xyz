@@ -1,11 +1,19 @@
+{- |
+Module      : Data.Matrix.AsXYZ.Parse
+Copyright   : (c) Jun Narumi 2018
+License     : BSD3
+Maintainer  : narumij@gmail.com
+Stability   : experimental
+Portability : ?
+-}
 module Data.Matrix.AsXYZ.Parse (
+  Value,
   equivalentPositions,
   transformPpABC,
   transformQqXYZ,
   ratio,
   integral,
   floating,
-  Value,
   ) where
 
 import Control.Monad
@@ -16,26 +24,53 @@ import Text.ParserCombinators.Parsec
 import Data.Ratio
 import Data.Ratio.Slash
 
-import Data.Ratio.ParseFloat (readFloatingPoint')
+import Data.Ratio.ParseFloat (readFloatingPoint)
 
 import Data.Matrix (fromList,fromLists,Matrix(..),joinBlocks,(<->))
 
+-- | General equivalent positions parser
+equivalentPositions :: Num a =>
+　　　　　　　　　　　　　　ReadNum a -- ^ use converter below
+　　　　　　　　　　　　 -> CharParser () [[a]]
+equivalentPositions = components xyz
+
+-- | Same as equivalentPositions but uses abc instead of xyz
+transformPpABC :: Num a => ReadNum a -> CharParser () [[a]]
+transformPpABC = components abc
+
+-- | Alias of equivalentPositions
+transformQqXYZ :: Num a => ReadNum a -> CharParser () [[a]]
+transformQqXYZ = components xyz
+
+-- | Converter of 3 kind of number (int,float,ratio) string to rational
+--
+-- Use it for equivalentPositions or something parseer
 ratio :: Integral a => Value -> Either String (Ratio a)
 ratio (I s) = Right $ getRatio . read $ s
 ratio (R s) = Right $ getRatio . read $ s
-ratio (F s) = Right $ readFloatingPoint' s
+ratio (F s) = Right $ readFloatingPoint s
 
+-- | Converter of integral number description to integral
+--
+-- Use it for equivalentPositions or something parseer
 integral :: Integral a => Value -> Either String a
 integral (I s) = Right $ fromIntegral (read s :: Integer)
 integral (R s) = Left  $ "cannot convert to integer from " ++ s ++ "."
 integral (F s) = Left  $ "cannot convert to integer from " ++ s ++ "."
 
+-- | Converter of 3 kind of number description to floating point
+--
+-- Use it for equivalentPositions or something parseer
 floating :: Floating a => Value -> Either String a
 floating v = fromRational <$> ratio v
 
+-- 数値の型情報
 data Val a
+  -- 整数
   = I a
+  -- 浮動小数
   | F a
+  -- 分数
   | R a
   deriving Show
 
@@ -44,6 +79,7 @@ instance Functor Val where
   fmap f (F a) = F (f a)
   fmap f (R a) = R (f a)
 
+-- | Type of numeric type information generated in the middle
 type Value = Val String
 
 data Var a
@@ -187,12 +223,3 @@ xyz = oneOf "xyzXYZ"
 
 abc :: CharParser () Char
 abc = oneOf "abcABC"
-
-equivalentPositions :: Num a => ReadNum a -> CharParser () [[a]]
-equivalentPositions = components xyz
-
-transformPpABC :: Num a => ReadNum a -> CharParser () [[a]]
-transformPpABC = components abc
-
-transformQqXYZ :: Num a => ReadNum a -> CharParser () [[a]]
-transformQqXYZ = components xyz
