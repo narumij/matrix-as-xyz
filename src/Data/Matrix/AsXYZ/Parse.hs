@@ -3,7 +3,8 @@ Module      : Data.Matrix.AsXYZ.Parse
 Copyright   : (c) Jun Narumi 2018
 License     : BSD3
 Maintainer  : narumij@gmail.com
-
+Stability   : experimental
+Portability : ?
 -}
 module Data.Matrix.AsXYZ.Parse (
   Value,
@@ -26,6 +27,20 @@ import Data.Ratio.Slash
 import Data.Ratio.ParseFloat (readFloatingPoint)
 
 import Data.Matrix (fromList,fromLists,Matrix(..),joinBlocks,(<->))
+
+-- | General equivalent positions parser
+equivalentPositions :: Num a =>
+　　　　　　　　　　　　　　ReadNum a -- ^ use converter below
+　　　　　　　　　　　　 -> CharParser () [[a]]
+equivalentPositions = components xyz
+
+-- | Same as equivalentPositions but uses abc instead of xyz
+transformPpABC :: Num a => ReadNum a -> CharParser () [[a]]
+transformPpABC = components abc
+
+-- | Alias of equivalentPositions
+transformQqXYZ :: Num a => ReadNum a -> CharParser () [[a]]
+transformQqXYZ = components xyz
 
 -- | Converter of 3 kind of number (int,float,ratio) string to rational
 --
@@ -208,17 +223,3 @@ xyz = oneOf "xyzXYZ"
 
 abc :: CharParser () Char
 abc = oneOf "abcABC"
-
--- | General equivalent positions parser
-equivalentPositions :: Num a =>
-　　　　　　　　　　　　　　ReadNum a -- ^ reader of numeric description
-　　　　　　　　　　　　 -> CharParser () [[a]]
-equivalentPositions = components xyz
-
--- | Same as equivalentPositions but uses abc instead of xyz
-transformPpABC :: Num a => ReadNum a -> CharParser () [[a]]
-transformPpABC = components abc
-
--- | Alias of equivalentPositions
-transformQqXYZ :: Num a => ReadNum a -> CharParser () [[a]]
-transformQqXYZ = components xyz
