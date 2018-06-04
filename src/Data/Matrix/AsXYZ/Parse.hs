@@ -24,7 +24,7 @@ import Text.ParserCombinators.Parsec
 import Data.Ratio
 import Data.Ratio.Slash
 
-import Data.Ratio.ParseFloat (readFloatingPoint')
+import Data.Ratio.ParseFloat (readFloatingPoint)
 
 import Data.Matrix (fromList,fromLists,Matrix(..),joinBlocks,(<->))
 
@@ -34,7 +34,7 @@ import Data.Matrix (fromList,fromLists,Matrix(..),joinBlocks,(<->))
 ratio :: Integral a => Value -> Either String (Ratio a)
 ratio (I s) = Right $ getRatio . read $ s
 ratio (R s) = Right $ getRatio . read $ s
-ratio (F s) = Right $ readFloatingPoint' s
+ratio (F s) = Right $ readFloatingPoint s
 
 -- | reader of integral number description to integral
 --

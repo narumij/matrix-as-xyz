@@ -12,7 +12,6 @@ Portability : ?
 module Data.Ratio.ParseFloat (
   floating,
   readFloatingPoint,
-  readFloatingPoint',
   ) where
 
 import Data.Ratio
@@ -20,7 +19,6 @@ import Text.ParserCombinators.Parsec
 
 -- | 浮動小数表記の文字列を分数に変換する
 --　まだ限界を調べていません
---
 -- >>> readFloatingPoint "1.0"
 -- 1 % 1
 -- >>> readFloatingPoint "0.5"
@@ -41,32 +39,8 @@ import Text.ParserCombinators.Parsec
 -- 500 % 1
 -- >>> readFloatingPoint "5e+2"
 -- 500 % 1
-readFloatingPoint :: String -> Rational
-readFloatingPoint = readFloatingPoint'
-
--- |
--- >>> readFloatingPoint "1.0"
--- 1 % 1
--- >>> readFloatingPoint "0.5"
--- 1 % 2
--- >>> readFloatingPoint ".5"
--- 1 % 2
--- >>> readFloatingPoint "10."
--- 10 % 1
--- >>> readFloatingPoint "10"
--- 10 % 1
--- >>> readFloatingPoint "10.2"
--- 51 % 5
--- >>> readFloatingPoint "1e-1"
--- 1 % 10
--- >>> readFloatingPoint "-0.5e-1"
--- (-1) % 20
--- >>> readFloatingPoint "5e2"
--- 500 % 1
--- >>> readFloatingPoint "5e+2"
--- 500 % 1
-readFloatingPoint' :: Integral a => String -> Ratio a
-readFloatingPoint' s = case parse floating s s of
+readFloatingPoint :: Integral a => String -> Ratio a
+readFloatingPoint s = case parse floating s s of
   Left  e -> error $ show e
   Right r -> r
 
