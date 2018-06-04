@@ -138,7 +138,7 @@ showAs labels = intercalate "," . map (rowString labels) . take 3 . toLists
 
 -- | Get the xyz representation of matrix
 --
--- >>> prettyXYZ (identity 4 :: Matrix Int)
+-- >>> prettyXYZ (identity 4 :: Matrix Rational)
 -- "x,y,z"
 --
 -- >           ( 0 % 1 0 % 1 0 % 1 1 % 2 )
@@ -153,7 +153,7 @@ prettyXYZ = showAs xyzLabel
 
 -- | It's uses abc instead of xyz
 --
--- >>> prettyXYZ (identity 4 :: Matrix Int)
+-- >>> prettyABC (identity 4 :: Matrix Rational)
 -- "a,b,c"
 prettyABC :: (Integral a) =>
              Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
