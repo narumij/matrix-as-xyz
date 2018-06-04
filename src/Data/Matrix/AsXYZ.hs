@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Read ans Display matrix with xyz reperesentation. (like general equivalnet position of International tables of Crystallography.)
+Read and Display matrix with xyz reperesentation. (like general equivalnet position of International tables of Crystallography.)
 
 -}
 module Data.Matrix.AsXYZ (

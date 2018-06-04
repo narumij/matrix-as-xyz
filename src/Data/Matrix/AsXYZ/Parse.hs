@@ -3,8 +3,7 @@ Module      : Data.Matrix.AsXYZ.Parse
 Copyright   : (c) Jun Narumi 2018
 License     : BSD3
 Maintainer  : narumij@gmail.com
-Stability   : experimental
-Portability : ?
+
 -}
 module Data.Matrix.AsXYZ.Parse (
   Value,
