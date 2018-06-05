@@ -2,11 +2,13 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7803b8831dfff0a88a84e7deb88265304d4ca34569b6db07861b557824cc5bab
+-- hash: 19899810c3d6696ddbcceefa6fcb228661c87238cefcfc1bcdde512fba3dd8ba
 
 name:           matrix-as-xyz
 version:        0.1.1.0
+synopsis:       Read and Display representation of matrix like "x,y,z"
 description:    Please see the README on GitHub at <https://github.com/narumij/matrix-as-xyz#readme>
+category:       Chemistry
 homepage:       https://github.com/narumij/matrix-as-xyz#readme
 bug-reports:    https://github.com/narumij/matrix-as-xyz/issues
 author:         Jun Narumi
@@ -37,7 +39,6 @@ library
   build-depends:
       QuickCheck
     , base >=4.7 && <5
-    , doctest
     , hspec
     , matrix
     , parsec
@@ -77,7 +78,6 @@ test-suite matrix-as-xyz-test
   build-depends:
       QuickCheck
     , base >=4.7 && <5
-    , doctest
     , hspec
     , matrix
     , matrix-as-xyz

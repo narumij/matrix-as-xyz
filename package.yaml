@@ -11,8 +11,8 @@ extra-source-files:
 - ChangeLog.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis:            Read and Display representation of matrix like "x,y,z"
+category:            Chemistry
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
@@ -22,12 +22,9 @@ description:         Please see the README on GitHub at <https://github.com/naru
 dependencies:
 - base >= 4.7 && < 5
 - matrix
-# - regex-compat
-# - regex-posix
 - parsec
 - hspec
 - QuickCheck
-- doctest
 
 library:
   source-dirs: src
@@ -52,3 +49,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - matrix-as-xyz
+    - doctest
