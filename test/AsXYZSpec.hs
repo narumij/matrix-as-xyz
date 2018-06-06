@@ -22,10 +22,10 @@ spec = do
        fromXYZ "X,Y,Z" `shouldBe` (identity 4)
 
      it "read a,b,c" $ do
-       fromXYZ "a,b,c" `shouldBe` (identity 4)
+       fromABC "a,b,c" `shouldBe` (identity 4)
 
      it "read A,B,C" $ do
-       fromXYZ "A,B,C" `shouldBe` (identity 4)
+       fromABC "A,B,C" `shouldBe` (identity 4)
 
    describe "Data.Matrix.AsXYZ.prettyXYZ" $ do
 
