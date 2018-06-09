@@ -1,5 +1,9 @@
 # Revision history for matrix-as-xyz
 
+## 0.1.1.1  -- 2018-06-09
+
+* 大文字が使用できなかった不具合の修正
+
 ## 0.1.1.0  -- 2018-06-05
 
 * CabalからStackに変更

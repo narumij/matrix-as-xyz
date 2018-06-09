@@ -2,10 +2,10 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 19899810c3d6696ddbcceefa6fcb228661c87238cefcfc1bcdde512fba3dd8ba
+-- hash: 6a225e76b978422309693298bada20249ab7d6023ddf7a05d2bdb4df6072a42b
 
 name:           matrix-as-xyz
-version:        0.1.1.0
+version:        0.1.1.1
 synopsis:       Read and Display representation of matrix like "x,y,z"
 description:    Please see the README on GitHub at <https://github.com/narumij/matrix-as-xyz#readme>
 category:       Chemistry
