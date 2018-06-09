@@ -17,6 +17,7 @@ module Data.Matrix.AsXYZ.Parse (
   ) where
 
 import Control.Monad
+import Data.Char
 import Data.Maybe
 import Data.List
 import Text.ParserCombinators.Parsec
@@ -95,13 +96,16 @@ instance Functor Var where
   fmap f (Z a) = Z (f a)
   fmap f (W a) = W (f a)
 
-v (Just 'x') = X
-v (Just 'a') = X
-v (Just 'y') = Y
-v (Just 'b') = Y
-v (Just 'z') = Z
-v (Just 'c') = Z
-v Nothing = W
+v c = f $ toLower <$> c
+  where
+    f (Just 'x') = X
+    f (Just 'a') = X
+    f (Just 'y') = Y
+    f (Just 'b') = Y
+    f (Just 'z') = Z
+    f (Just 'c') = Z
+    f (Just 'Z') = Z
+    f Nothing = W
 
 sign :: CharParser () Char
 sign = oneOf "-+"

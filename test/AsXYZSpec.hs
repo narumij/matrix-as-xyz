@@ -18,6 +18,14 @@ spec = do
      it "read x,y,z" $ do
        fromXYZ "x,y,z" `shouldBe` (identity 4)
 
+     it "read X,Y,Z" $ do
+       fromXYZ "X,Y,Z" `shouldBe` (identity 4)
+
+     it "read a,b,c" $ do
+       fromABC "a,b,c" `shouldBe` (identity 4)
+
+     it "read A,B,C" $ do
+       fromABC "A,B,C" `shouldBe` (identity 4)
 
    describe "Data.Matrix.AsXYZ.prettyXYZ" $ do
 
