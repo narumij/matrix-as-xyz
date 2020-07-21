@@ -20,10 +20,10 @@
 # resolver: https://example.com/snapshots/2018-01-01.yaml
 #resolver: lts-8.0
 #resolver: lts-9.21
-resolver: lts-11.8
+#resolver: lts-11.8
 #resolver: lts-12.10
 #resolver: lts-16.5
-#resolver: lts-16.6
+resolver: lts-16.6
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
