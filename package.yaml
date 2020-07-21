@@ -49,4 +49,3 @@ tests:
     dependencies:
     - matrix-as-xyz
     - doctest
-#    - doctest-discover
