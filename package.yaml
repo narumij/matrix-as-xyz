@@ -1,5 +1,5 @@
 name:                matrix-as-xyz
-version:             0.1.1.1
+version:             0.1.1.2
 github:              "narumij/matrix-as-xyz"
 license:             BSD3
 author:              "Jun Narumi"
@@ -8,7 +8,7 @@ copyright:           "Jun Narumi"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
+# - ChangeLog.md
 
 # Metadata used when publishing your package
 synopsis:            Read and Display representation of matrix like "x,y,z"
@@ -20,17 +20,17 @@ category:            Chemistry
 description:         Please see the README on GitHub at <https://github.com/narumij/matrix-as-xyz#readme>
 
 dependencies:
-- base >= 4.7 && < 5
-- matrix
-- parsec
-- hspec
-- QuickCheck
+- base >= 4.8 && < 5
+- matrix >= 0.3.5 && < 1
+- parsec >= 3.1 && < 4
+- hspec >= 2.4 && < 3
+- QuickCheck >= 2.4 && < 3
 
 library:
   source-dirs: src
 
 tests:
-  matrix-as-xyz-test:
+  spec-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -40,9 +40,8 @@ tests:
     dependencies:
     - matrix-as-xyz
 
-  matrix-as-xyz-doctest:
-    main:                doctests.hs
-    source-dirs:         test
+  doctest:
+    main:                test/doctests.hs
     ghc-options:
     - -threaded
     - -rtsopts
@@ -50,3 +49,4 @@ tests:
     dependencies:
     - matrix-as-xyz
     - doctest
+#    - doctest-discover
