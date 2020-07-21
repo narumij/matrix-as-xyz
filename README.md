@@ -6,5 +6,5 @@ Treat matrix as xyz representation like International Tables for X-ray Crystallo
 
 ## License
 
-See the [LICENSE](https://github.com/narumij/matrix-as-xyz/LICENSE)
+See the [LICENSE](https://raw.githubusercontent.com/narumij/matrix-as-xyz/master/LICENSE)
 file in the repository.
