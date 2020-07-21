@@ -1,7 +1,8 @@
-module Main where
+module Main (main) where
 
 import Test.DocTest
 
+main :: IO ()
 main = doctest [
   "--fast",
   "src/Data/Ratio/Slash.hs",

@@ -30,7 +30,7 @@ library:
   source-dirs: src
 
 tests:
-  test:
+  spec-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -41,8 +41,7 @@ tests:
     - matrix-as-xyz
 
   doctest:
-    main:                doctests.hs
-#    source-dirs:         test
+    main:                test/doctests.hs
     ghc-options:
     - -threaded
     - -rtsopts
