@@ -21,8 +21,8 @@ description:         Please see the README on GitHub at <https://github.com/naru
 
 dependencies:
 - base >= 4.8 && < 5
-- matrix >= 0.3.5 && < 1
 - parsec >= 3.1 && < 4
+- matrix >= 0.3.5 && < 1
 
 library:
   source-dirs: src
