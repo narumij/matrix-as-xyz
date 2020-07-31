@@ -4,7 +4,7 @@
 [![Hackage page (downloads and API reference)][hackage-png]][hackage]
 [![Hackage-Deps][hackage-deps-png]][hackage-deps]
 
-Haskell Jones-Faithfull notation (also called coordinate triplet) Library
+Haskell Jones-Faithful notation (also called coordinate triplet) Library
 
 Treat matrix as xyz representation like International Tables for Crystallography
 
