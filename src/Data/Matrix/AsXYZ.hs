@@ -74,7 +74,7 @@ get e = case e of
 
 ----------------------------------
 
--- +または-が銭湯に必ずあるようにする
+-- +または-が先頭に必ずあるようにする
 addPlusSign :: String -> String
 addPlusSign xs@('-':_) = xs
 addPlusSign xs         = '+' : xs

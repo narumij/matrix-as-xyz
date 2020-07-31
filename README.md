@@ -4,9 +4,9 @@
 [![Hackage page (downloads and API reference)][hackage-png]][hackage]
 [![Hackage-Deps][hackage-deps-png]][hackage-deps]
 
-Haskell General equivalent positions Library
+Haskell Jones-Faithfull notation (also called coordinate triplet) Library
 
-Treat matrix as xyz representation like International Tables for X-ray Crystallography
+Treat matrix as xyz representation like International Tables for Crystallography
 
 ## License
 

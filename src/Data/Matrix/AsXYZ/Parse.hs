@@ -104,7 +104,6 @@ v c = f $ toLower <$> c
     f (Just 'b') = Y
     f (Just 'z') = Z
     f (Just 'c') = Z
-    f (Just 'Z') = Z
     f Nothing = W
 
 sign :: CharParser () Char
