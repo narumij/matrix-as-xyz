@@ -226,10 +226,3 @@ xyz = oneOf "xyzXYZ"
 
 abc :: CharParser () Char
 abc = oneOf "abcABC"
-
-
-hoge input = parse (parser ratio) input input
-  where
-    parser = component xyz
-
-hogehoge input = parse (equivalentPositions ratio) input input
