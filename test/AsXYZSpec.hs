@@ -7,6 +7,58 @@ import Data.Ratio
 import Data.Matrix
 import Data.Matrix.AsXYZ
 
+readTest str mat = do
+  it ("read " ++ str) $ do
+    fromXYZ str `shouldBe` mat
+
+curryM f (a,b) = do
+  f a b
+
+readData = [
+  ("z,x,y",
+    {- shouldBe -}
+    fromLists [
+      [0,0,1,0],
+      [1,0,0,0],
+      [0,1,0,0],
+      [0,0,0,1]]),
+  ("x+1,y+1,z+1",
+    {- shouldBe -}
+    fromLists [
+      [1,0,0,1],
+      [0,1,0,1],
+      [0,0,1,1],
+      [0,0,0,1]]),
+  ("x-1,y-1,z-1",
+    {- shouldBe -}
+    fromLists [
+      [1,0,0,-1],
+      [0,1,0,-1],
+      [0,0,1,-1],
+      [0,0,0,1]]),
+  ("x+1/2,y-2/3,z+3/4",
+    {- shouldBe -}
+    fromLists [
+      [1,0,0,1%2],
+      [0,1,0,-2%3],
+      [0,0,1,3%4],
+      [0,0,0,1]]),
+  ("x-5/8,y+7/16,z-9/32",
+    {- shouldBe -}
+    fromLists [
+      [1,0,0,-5%8],
+      [0,1,0,7%16],
+      [0,0,1,-9%32],
+      [0,0,0,1]]),
+  ("1/2,1/2,1/2",
+    {- shouldBe -}
+    fromLists [
+      [0,0,0,1%2],
+      [0,0,0,1%2],
+      [0,0,0,1%2],
+      [0,0,0,1]])
+  ]
+
 spec :: Spec
 spec = do
 
@@ -33,6 +85,8 @@ spec = do
      it "read X,Y,Z" $ do
        fromXYZ "X,Y,Z"
         `shouldBe` (identity 4)
+     
+     mapM_ (curryM readTest) readData
 
      it "read a,b,c" $ do
        fromABC "a,b,c" `shouldBe` (identity 4)
