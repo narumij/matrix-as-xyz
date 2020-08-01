@@ -18,8 +18,21 @@ spec = do
      it "read x,y,z" $ do
        fromXYZ "x,y,z" `shouldBe` (identity 4)
 
+     it "read x,y,z+1" $ do
+       fromXYZ "x,y,z"
+        `shouldBe` (fromLists [[1,0,0,0],[0,1,0,0],[0,0,1,1],[0,0,0,1]])
+
+     it "read x,y,z+1/2" $ do
+       fromXYZ "x,y,z"
+        `shouldBe` (fromLists [[1,0,0,0],[0,1,0,0],[0,0,1,1%2],[0,0,0,1]])
+
+     it "read 1/2,1/2,1/2" $ do
+       fromXYZ "x,y,z"
+        `shouldBe` (fromLists [[0,0,0,1%2],[0,0,0,1%2],[0,0,0,1%2],[0,0,0,1]])
+
      it "read X,Y,Z" $ do
-       fromXYZ "X,Y,Z" `shouldBe` (identity 4)
+       fromXYZ "X,Y,Z"
+        `shouldBe` (identity 4)
 
      it "read a,b,c" $ do
        fromABC "a,b,c" `shouldBe` (identity 4)

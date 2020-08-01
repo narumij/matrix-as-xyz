@@ -60,4 +60,3 @@ spec = do
 
      it "show 1" $ do
        prettyAB (identity 4) `shouldBe` "a,b"
-
