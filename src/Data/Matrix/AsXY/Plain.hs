@@ -65,10 +65,10 @@ rowString :: (Integral a) => [String] -> [Ratio a] -> String
 rowString labels line = refineRow (row labels line)
 
 xyzLabel :: [String]
-xyzLabel = ["x","y","z",""]
+xyzLabel = ["x","y",""]
 
 abcLabel :: [String]
-abcLabel = ["a","b","c",""]
+abcLabel = ["a","b",""]
 
 showAs :: (Integral a) => [String] -> Matrix (Ratio a) -> String
-showAs labels = intercalate "," . map (rowString labels) . take 3 . toLists
+showAs labels = intercalate "," . map (rowString labels) . take 2 . toLists

@@ -33,15 +33,15 @@ import Data.Matrix (fromList,fromLists,Matrix(..),joinBlocks,(<->))
 equivalentPositions :: Num a =>
 　　　　　　　　　　　　　　ReadNum a -- ^ use converter below
 　　　　　　　　　　　　 -> CharParser () [[a]]
-equivalentPositions = components xyz
+equivalentPositions = components xy
 
 -- | Same as equivalentPositions but uses abc instead of xyz
 transformPpABC :: Num a => ReadNum a -> CharParser () [[a]]
-transformPpABC = components abc
+transformPpABC = components ab
 
 -- | Alias of equivalentPositions
 transformQqXYZ :: Num a => ReadNum a -> CharParser () [[a]]
-transformQqXYZ = components xyz
+transformQqXYZ = components xy
 
 -- | Converter of 3 kind of number (int,float,ratio) string to rational
 --
@@ -87,14 +87,12 @@ data Var a
   = X a
   | Y a
   | Z a
-  | W a
   deriving (Show,Eq)
 
 instance Functor Var where
   fmap f (X a) = X (f a)
   fmap f (Y a) = Y (f a)
   fmap f (Z a) = Z (f a)
-  fmap f (W a) = W (f a)
 
 v c = f $ toLower <$> c
   where
@@ -102,9 +100,7 @@ v c = f $ toLower <$> c
     f (Just 'a') = X
     f (Just 'y') = Y
     f (Just 'b') = Y
-    f (Just 'z') = Z
-    f (Just 'c') = Z
-    f Nothing = W
+    f Nothing = Z
 
 sign :: CharParser () Char
 sign = oneOf "-+"
@@ -194,10 +190,9 @@ overlap n = (length . nub) n /= length n
 constructRow :: Num a => [Var a] -> [a]
 constructRow = map (fromMaybe 0 . listToMaybe . catMaybes) . transpose . map toArray
   where
-    toArray (X n) = [Just n,Nothing,Nothing,Nothing]
-    toArray (Y n) = [Nothing,Just n,Nothing,Nothing]
-    toArray (Z n) = [Nothing,Nothing,Just n,Nothing]
-    toArray (W n) = [Nothing,Nothing,Nothing,Just n]
+    toArray (X n) = [Just n,Nothing,Nothing]
+    toArray (Y n) = [Nothing,Just n,Nothing]
+    toArray (Z n) = [Nothing,Nothing,Just n]
 
 component :: Num b => CharParser () Char -> ReadNum b -> CharParser () [b]
 component var numRead = do
@@ -217,12 +212,10 @@ components var conv = do
   a <- component var conv
   char ','
   b <- component var conv
-  char ','
-  c <- component var conv
-  return [a,b,c]
+  return [a,b]
 
-xyz :: CharParser () Char
-xyz = oneOf "xyzXYZ"
+xy :: CharParser () Char
+xy = oneOf "xyXY"
 
-abc :: CharParser () Char
-abc = oneOf "abcABC"
+ab :: CharParser () Char
+ab = oneOf "abAB"

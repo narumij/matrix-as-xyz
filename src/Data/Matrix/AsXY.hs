@@ -65,7 +65,7 @@ fromAB :: Integral a => String -> Matrix (Ratio a)
 fromAB input = unsafeGet $ makeMatrix <$> parse (transformPpABC ratio) input input
 
 makeMatrix :: Num a => [[a]] -> Matrix a
-makeMatrix m = fromLists m <-> fromLists [[0,0,0,1]]
+makeMatrix m = fromLists m <-> fromLists [[0,0,1]]
 
 unsafeGet :: Either ParseError a -> a
 unsafeGet e = case e of
