@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Read and Display matrix with xyz reperesentation. (like general equivalnet position of International tables of Crystallography.)
+Read and Display matrix represented likes x,y,z called Jones-Faithful notation or coordinate triplet.
 
 -}
 module Data.Matrix.AsXYZ (
@@ -15,17 +15,22 @@ module Data.Matrix.AsXYZ (
   fromABC,
   prettyXYZ,
   prettyABC,
+  texXYZ,
+  texABC,
   ) where
 
 import Control.Monad (join)
 import Data.Char (isAlpha)
 import Data.List (intercalate)
-import Data.Ratio (Ratio)
+import Data.Ratio (Ratio,(%))
 import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
 import Text.ParserCombinators.Parsec (parse,ParseError)
 
 import Data.Ratio.Slash (getRatio,Slash(..))
 import Data.Matrix.AsXYZ.Parse (equivalentPositions,transformPpABC,ratio)
+
+import qualified Data.Matrix.AsXYZ.Plain as Plain
+import qualified Data.Matrix.AsXYZ.Tex as Tex
 
 -- | Create a matirx from xyz coordinate string of general equivalent position
 --
@@ -74,68 +79,6 @@ get e = case e of
 
 ----------------------------------
 
--- +または-が先頭に必ずあるようにする
-addPlusSign :: String -> String
-addPlusSign xs@('-':_) = xs
-addPlusSign xs         = '+' : xs
-
--- 符号付きの数値文字列にする
-numStr :: (Integral a) => Ratio a -> String
-numStr = addPlusSign . show . Slash
-
-varString :: (Integral a) => Ratio a -> String -> String
-varString num label
-　-- 0の場合省略
-  | num == 0   = ""
-  -- 4番目の項目で、変数が付かない場合、数値文字列化
-  | null label = numStr num
-  -- 数値が1で変数がある場合、数値を省略
-  | num == 1   = "+" ++ label
-  -- 数値が-1で変数がある場合、数値を省略
-  | num == -1  = "-" ++ label
-  -- それ以外では数値と変数を文字列化
-  | otherwise  = numStr num ++ label
-
--- 正の係数がついた変数である
-isPrimary :: String -> Bool
-isPrimary x = (hasLetter . reverse) x && isPositive x
-
-hasLetter :: String -> Bool
-hasLetter (x:_) = isAlpha x
-hasLetter _     = False
-
-isPositive :: String -> Bool
-isPositive ('+':_) = True
-isPositive _       = False
-
--- 正の係数がついた変数を先頭にする
-varSort :: [String] -> [String]
-varSort parts = filter isPrimary parts ++ filter (not . isPrimary) parts
-
-row :: (Integral a) => [String] -> [Ratio a] -> String
-row labels line = join . varSort $ zipWith varString line labels
-
-refineRow :: String -> String
-refineRow s
-  -- 全ての項目が省略されていると空文字列になっているので、0
-  | null s = "0"
-  -- 先頭の項目が正の場合、+記号を省略できるので削る
-  | head s == '+' = tail s
-  | otherwise = s
-
-rowString :: (Integral a) => [String] -> [Ratio a] -> String
-rowString labels line = refineRow (row labels line)
-
-xyzLabel :: [String]
-xyzLabel = ["x","y","z",""]
-
-abcLabel :: [String]
-abcLabel = ["a","b","c",""]
-
-showAs :: (Integral a) => [String] -> Matrix (Ratio a) -> String
-showAs labels = intercalate "," . map (rowString labels) . take 3 . toLists
-
-
 -- | Get the xyz representation of matrix
 --
 -- >>> prettyXYZ (identity 4 :: Matrix Rational)
@@ -148,14 +91,42 @@ showAs labels = intercalate "," . map (rowString labels) . take 3 . toLists
 prettyXYZ :: (Integral a) =>
              Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
           -> String
-prettyXYZ = showAs xyzLabel
+prettyXYZ = Plain.showAs Plain.xyzLabel
 
 
--- | It's uses abc instead of xyz
+-- | It's uses abc instead of xyz as text format
 --
 -- >>> prettyABC (identity 4 :: Matrix Rational)
 -- "a,b,c"
 prettyABC :: (Integral a) =>
              Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
           -> String
-prettyABC = showAs abcLabel
+prettyABC = Plain.showAs Plain.abcLabel
+
+-- | Get the xyz representation of matrix as tex format
+--
+-- >>> texXYZ (identity 4 :: Matrix Rational)
+-- "\\normalsize x,y,z"
+--
+-- \( \normalsize x,y,z \)
+--
+-- >>> texXYZ . fromLists $ [[1,0,0,-1%2],[-1,0,0,1%2],[-1,0,0,0]]
+-- "\\normalsize x-\\small \\frac{1}{2}\\normalsize ,\\overline{x}+\\small \\frac{1}{2}\\normalsize ,\\overline{x}"
+--
+-- \( \normalsize x-\small \frac{1}{2}\normalsize ,\overline{x}+\small \frac{1}{2}\normalsize ,\overline{x} \)
+--
+-- >>> texXYZ . fromLists $ [[0,0,0,-1%4],[0,0,0,1%4],[0,0,0,-1%4]]
+-- "\\small \\overline{\\frac{1}{4}}\\normalsize ,\\small \\frac{1}{4}\\normalsize ,\\small \\overline{\\frac{1}{4}}"
+--
+-- \( \small \overline{\frac{1}{4}}\normalsize ,\small \frac{1}{4}\normalsize ,\small \overline{\frac{1}{4}} \)
+texXYZ :: Matrix Rational -> String
+texXYZ = Tex.texAs "xyz" Tex.Normalsize Tex.Small
+
+-- | It's uses abc instead of xyz
+--
+-- >>> texABC (identity 4 :: Matrix Rational)
+-- "\\normalsize a,b,c"
+--
+-- \( \normalsize a,b,c \)
+texABC :: Matrix Rational -> String
+texABC = Tex.texAs "abc" Tex.Normalsize Tex.Small
