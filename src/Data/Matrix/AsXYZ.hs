@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Read and Display matrix represented likes x,y,z called Jones-Faithful notation or coordinate triplet.
+Read and Display matrix as represented likes 'x,y,z' called Jones-Faithful notation or coordinate triplet.
 
 -}
 module Data.Matrix.AsXYZ (
