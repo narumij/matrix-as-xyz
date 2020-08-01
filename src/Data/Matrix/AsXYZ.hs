@@ -115,12 +115,19 @@ prettyABC = Plain.showAs Plain.abcLabel
 --
 -- \( \normalsize x-\small \frac{1}{2}\normalsize ,\overline{x}+\small \frac{1}{2}\normalsize ,\overline{x} \)
 --
+-- >>> texXYZ . fromLists $ [[-1,0,0,0],[0,0,0,0],[1,0,0,0]]
+-- "\\normalsize \\overline{x},0,x"
+--
+-- \( \normalsize \overline{x},0,x \)
+--
 -- >>> texXYZ . fromLists $ [[0,0,0,-1%4],[0,0,0,1%4],[0,0,0,-1%4]]
 -- "\\small \\overline{\\frac{1}{4}}\\normalsize ,\\small \\frac{1}{4}\\normalsize ,\\small \\overline{\\frac{1}{4}}"
 --
 -- \( \small \overline{\frac{1}{4}}\normalsize ,\small \frac{1}{4}\normalsize ,\small \overline{\frac{1}{4}} \)
+--
 texXYZ :: Matrix Rational -> String
 texXYZ = Tex.texAs "xyz" Tex.Normalsize Tex.Small
+
 
 -- | It's uses abc instead of xyz
 --
