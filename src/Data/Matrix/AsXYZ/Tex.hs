@@ -11,7 +11,7 @@ import Numeric
 
 data Flag a = P a | N a | Zero deriving (Show)
 data Var a = X a | Y a | Z a | W a deriving (Show)
-data Command = None | SizeN | SizeS | Str String deriving (Show,Eq)
+data Command = None | Space | SizeN | SizeS | Str String deriving (Show,Eq)
 data Size = Tiny | Scriptsize | Footnotesize | Small | Normalsize deriving Show
 
 label :: String -> String
@@ -92,21 +92,27 @@ texV labels bar var   = if flag then [Str . bar $ label] else [SizeS, Str . bar 
 reduceCommands :: [Command] -> [Command]
 reduceCommands = f None None
   where
-    f None None    (x:xs)     = f None x xs
-    f a    (Str _) (Str n:xs) = (Str n) : f a (Str n) xs
-    f a    b       (Str n:xs) | a /= b    = b : Str n : f b (Str n) xs
-                              | otherwise = Str n : f b (Str n) xs
-    f a    _       (x:xs)     = f a x xs
-    f _    _       []         = []
+    f None None    (x@(Str n):xs) = Str n:f None x xs
+    f None None    (x        :xs) = f None x xs
+    f a    (Str _) (Str n    :xs) = (Str n) : f a (Str n) xs
+    f a    b       (Str n    :xs) | a /= b    = b : Str n : f b (Str n) xs
+                                  | otherwise = Str n : f b (Str n) xs
+    f a    _       (x        :xs) = f a x xs
+    f _    _       []             = []
 
-renderCommand :: (Foldable t) => Size -> Size -> t Command -> [Char]
-renderCommand sizeN sizeS = concatMap render
+renderCommand :: Size -> Size -> [Command] -> String
+renderCommand sizeN sizeS = concatMap render . removeHeadNormalsize . (renderSize sizeN sizeS)
   where
+    renderS SizeN = cmd sizeN
+    renderS SizeS = cmd sizeS
+    renderS a = a
+    cmd = Str . label . cmdText
+    cmdText a = (++ " ") . map toLower $ show a
+    renderSize sizeN sizeS = map renderS
     render None = ""
-    render SizeN = label (f sizeN) ++ " "
-    render SizeS = label (f sizeS) ++ " "
     render (Str s) = s
-    f a = map toLower $ show a
+    removeHeadNormalsize (Str "\\normalsize ":a) = a
+    removeHeadNormalsize b = b
 
 commands label = intercalate [SizeN, Str ","] . map (rowCommands label)
 
