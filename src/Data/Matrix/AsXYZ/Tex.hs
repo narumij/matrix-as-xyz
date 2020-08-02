@@ -9,10 +9,11 @@ import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
 
 import Numeric
 
-data Flag a = P a | N a | Zero deriving (Show)
-data Var a = X a | Y a | Z a | W a deriving (Show)
-data Command = None | Space | SizeN | SizeS | Str String deriving (Show,Eq)
-data Size = Tiny | Scriptsize | Footnotesize | Small | Normalsize deriving Show
+import Data.Matrix.AsXYZ.Common
+
+data Command = None | Space | SizeN | SizeS | Size Relative | Str String deriving (Show,Eq)
+
+data Relative = Tiny | Scriptsize | Footnotesize | Small | Normalsize | Large | Huge deriving (Show,Eq)
 
 label :: String -> String
 label l = "\\" ++ l
@@ -33,42 +34,6 @@ num r | d == 1 = int n
     showInt' = flip showInt "" -- Constraint Show class を回避するため
     int n = showInt' n
     frac n d = label "frac" ++ (join . map (curly . showInt') $ [n,d])
-
----------------------------
-
-rowCommands label = reduceCommands . toCommands label . reduceVars . sortVars . toVars
-  where
-    
-    toVars = zipWith (\a b -> hoge a b) [X,Y,Z,W]
-      where
-        hoge f r | r < 0 = N $ f (r * (-1))
-                 | otherwise = P $ f r
-
-    toCommands label (x:xs) = [SizeN] ++ texP' label x ++ concatMap (texP label) xs
-      where
-        toStr a = map toLower $ show a
-
-    sortVars parts = filter isPrimary parts ++ filter (not . isPrimary) parts
-      where
-        -- 正の係数がついた変数である
-        isPrimary :: Flag (Var a) -> Bool
-        isPrimary Zero = False
-        isPrimary (N _) = False
-        isPrimary (P (W _)) = False
-        isPrimary _ = True
-
-    reduceVars rr = if null a then [Zero] else a
-      where
-        a = filter (not . isZero) rr
-
-    isZero (N v) = isZero' v
-    isZero (P v) = isZero' v
-    isZero Zero = True
-
-    isZero' (X n) = n == 0
-    isZero' (Y n) = n == 0
-    isZero' (Z n) = n == 0
-    isZero' (W n) = n == 0
 
 texP label (P var) = [Str "+"] ++ texV label id var
 texP label (N var) = [Str "-"] ++ texV label id var
@@ -100,27 +65,38 @@ reduceCommands = f None None
     f a    _       (x        :xs) = f a x xs
     f _    _       []             = []
 
-renderCommand :: Size -> Size -> [Command] -> String
-renderCommand sizeN sizeS = concatMap render . removeHeadNormalsize . (renderSize sizeN sizeS)
+reduceNormalsize :: [Command] -> [Command]
+reduceNormalsize = f None
   where
-    renderS SizeN = cmd sizeN
-    renderS SizeS = cmd sizeS
+    f None (Size Normalsize:xs) =   f None xs
+    f None (x@(Size n):xs)      = x:f x xs
+    f None (x:xs)               = x:f None xs
+    f _    (x:xs)               = x:f x xs
+    f _    []                   = []
+
+renderCommand :: Relative -> Relative -> [Command] -> String
+renderCommand sizeN sizeS = concatMap render . reduceNormalsize . (renderSize sizeN sizeS)
+  where
+    renderS SizeN = Size sizeN
+    renderS SizeS = Size sizeS
     renderS a = a
-    cmd = Str . label . cmdText
-    cmdText a = (++ " ") . map toLower $ show a
     renderSize sizeN sizeS = map renderS
     render None = ""
     render (Str s) = s
-    removeHeadNormalsize (Str "\\normalsize ":a) = a
-    removeHeadNormalsize b = b
+    render (Size s) = "\\" ++ (map toLower $ show s) ++ " "
 
+toCommands :: Integral a => [Char] -> [Sign (Var (Ratio a))] -> [Command]
+toCommands label (x:xs) = [SizeN] ++ texP' label x ++ concatMap (texP label) xs
+
+rowCommands :: Integral a => String -> [Ratio a] -> [Command]
+rowCommands label = toCommands label . rowVars
+
+commands :: Integral a => String -> [[Ratio a]] -> [Command]
 commands label = intercalate [SizeN, Str ","] . map (rowCommands label)
 
-string label sizeN sizeS = renderCommand sizeN sizeS . reduceCommands . commands label
+rowsString :: Integral a => String -> Relative -> Relative -> [[Ratio a]] -> String
+rowsString label sizeN sizeS = renderCommand sizeN sizeS . reduceCommands . commands label
 
-rowString label sizeN sizeS
-  = renderCommand sizeN sizeS . rowCommands label
-
-texAs :: Integral a => String -> Size -> Size -> Matrix (Ratio a) -> String
-texAs label sizeN sizeS = string label sizeN sizeS . take 3 . toLists
+texAs :: Integral a => String -> Relative -> Relative -> Matrix (Ratio a) -> String
+texAs label sizeN sizeS = rowsString label sizeN sizeS . take 3 . toLists
 

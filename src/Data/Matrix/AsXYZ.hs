@@ -30,7 +30,7 @@ import Data.Ratio.Slash (getRatio,Slash(..))
 import Data.Matrix.AsXYZ.Parse (equivalentPositions,transformPpABC,ratio)
 
 import qualified Data.Matrix.AsXYZ.Plain as Plain
-import qualified Data.Matrix.AsXYZ.Tex as Tex (texAs,Size(..))
+import qualified Data.Matrix.AsXYZ.Tex as Tex (texAs,Relative(..))
 
 -- | Create a matirx from xyz coordinate string of general equivalent position
 --
@@ -137,3 +137,4 @@ texXYZ = Tex.texAs "xyz" Tex.Normalsize Tex.Small
 -- \( a,b,c \)
 texABC :: Matrix Rational -> String
 texABC = Tex.texAs "abc" Tex.Normalsize Tex.Small
+
