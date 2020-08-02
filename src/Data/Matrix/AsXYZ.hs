@@ -15,8 +15,6 @@ module Data.Matrix.AsXYZ (
   fromABC,
   prettyXYZ,
   prettyABC,
-  texXYZ,
-  texABC,
   ) where
 
 import Control.Monad (join)
@@ -28,9 +26,7 @@ import Text.ParserCombinators.Parsec (parse,ParseError)
 
 import Data.Ratio.Slash (getRatio,Slash(..))
 import Data.Matrix.AsXYZ.Parse (equivalentPositions,transformPpABC,ratio)
-
-import qualified Data.Matrix.AsXYZ.Plain as Plain
-import qualified Data.Matrix.AsXYZ.Tex as Tex (texAs,Relative(..))
+import qualified Data.Matrix.AsXYZ.Plain as Plain (showAs,xyzLabel,abcLabel)
 
 -- | Create a matirx from xyz coordinate string of general equivalent position
 --
@@ -102,39 +98,4 @@ prettyABC :: (Integral a) =>
              Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
           -> String
 prettyABC = Plain.showAs Plain.abcLabel
-
--- | Get the xyz representation of matrix as tex format
---
--- >>> texXYZ (identity 4 :: Matrix Rational)
--- "x,y,z"
---
--- \( x,y,z \)
---
--- >>> texXYZ . fromLists $ [[1,0,0,-1%2],[-1,0,0,1%2],[-1,0,0,0]]
--- "x-\\small \\frac{1}{2}\\normalsize ,\\overline{x}+\\small \\frac{1}{2}\\normalsize ,\\overline{x}"
---
--- \( x-\small \frac{1}{2}\normalsize ,\overline{x}+\small \frac{1}{2}\normalsize ,\overline{x} \)
---
--- >>> texXYZ . fromLists $ [[-1,0,0,0],[0,0,0,0],[1,0,0,0]]
--- "\\overline{x},0,x"
---
--- \( \overline{x},0,x \)
---
--- >>> texXYZ . fromLists $ [[0,0,0,-1%4],[0,0,0,1%4],[0,0,0,-1%4]]
--- "\\small \\overline{\\frac{1}{4}}\\normalsize ,\\small \\frac{1}{4}\\normalsize ,\\small \\overline{\\frac{1}{4}}"
---
--- \( \small \overline{\frac{1}{4}}\normalsize ,\small \frac{1}{4}\normalsize ,\small \overline{\frac{1}{4}} \)
---
-texXYZ :: Matrix Rational -> String
-texXYZ = Tex.texAs "xyz" Tex.Normalsize Tex.Small
-
-
--- | It's uses abc instead of xyz
---
--- >>> texABC (identity 4 :: Matrix Rational)
--- "a,b,c"
---
--- \( a,b,c \)
-texABC :: Matrix Rational -> String
-texABC = Tex.texAs "abc" Tex.Normalsize Tex.Small
 
