@@ -1,7 +1,4 @@
-module Data.Matrix.AsXYZ.Tex (
-  texAs,
-  Size(..)
-  ) where
+module Data.Matrix.AsXYZ.Tex where
 
 import Control.Monad (join)
 

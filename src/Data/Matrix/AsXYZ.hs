@@ -30,7 +30,7 @@ import Data.Ratio.Slash (getRatio,Slash(..))
 import Data.Matrix.AsXYZ.Parse (equivalentPositions,transformPpABC,ratio)
 
 import qualified Data.Matrix.AsXYZ.Plain as Plain
-import qualified Data.Matrix.AsXYZ.Tex as Tex
+import qualified Data.Matrix.AsXYZ.Tex as Tex (texAs,Size(..))
 
 -- | Create a matirx from xyz coordinate string of general equivalent position
 --
