@@ -7,6 +7,28 @@ import Data.Ratio
 import Data.Matrix
 import Data.Matrix.AsXY
 
+readTest str mat = do
+  it ("read " ++ str) $ do
+    fromXY str `shouldBe` mat
+
+readData = [
+  ("x,y+1",
+    {- shouldBe -}
+    fromLists [
+      [1,0,0],
+      [0,1,1],
+      [0,0,1]]),
+  ("+x+y+2,+x+y+3",
+    {- shouldBe -}
+    fromLists [
+      [1,1,2],
+      [1,1,3],
+      [0,0,1]])
+  ]
+
+curryM f (a,b) = do
+  f a b
+
 spec :: Spec
 spec = do
 
@@ -20,6 +42,8 @@ spec = do
 
      it "read X,Y" $ do
        fromXY "X,Y" `shouldBe` (identity 3)
+
+     mapM_ (curryM readTest) readData
 
      it "read a,b" $ do
        fromAB "a,b" `shouldBe` (identity 3)

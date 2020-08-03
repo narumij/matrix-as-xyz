@@ -43,45 +43,34 @@ transformPpABC = components ab
 transformQqXYZ :: Num a => P.ReadNum a -> CharParser () [[a]]
 transformQqXYZ = components xy
 
-data Var a
-  = X a
-  | Y a
-  | Z a
-  deriving (Show,Eq)
-
-instance Functor Var where
-  fmap f (X a) = X (f a)
-  fmap f (Y a) = Y (f a)
-  fmap f (Z a) = Z (f a)
-
 v c = f $ toLower <$> c
   where
-    f (Just 'x') = X
-    f (Just 'a') = X
-    f (Just 'y') = Y
-    f (Just 'b') = Y
-    f Nothing = Z
+    f (Just 'x') = P.X
+    f (Just 'a') = P.X
+    f (Just 'y') = P.Y
+    f (Just 'b') = P.Y
+    f Nothing = P.Z
 
-one :: Num a => CharParser () Char -> P.ReadNum a -> CharParser () (Var a)
+one :: Num a => CharParser () Char -> P.ReadNum a -> CharParser () (P.Var a)
 one var numRead = do
   s <- optionMaybe P.sign
   option () spaces
   (n,l) <- P.elementBody var numRead
   return $ v l . P.minus s . fromMaybe 1 $ n
 
-other :: Num a => CharParser () Char -> P.ReadNum a -> CharParser () (Var a)
+other :: Num a => CharParser () Char -> P.ReadNum a -> CharParser () (P.Var a)
 other var numRead = do
   s <- P.sign
   option () spaces
   (n,l) <- P.elementBody var numRead
   return $ v l . P.minus (Just s) . fromMaybe 1 $ n
 
-constructRow :: Num a => [Var a] -> [a]
+constructRow :: Num a => [P.Var a] -> [a]
 constructRow = map (fromMaybe 0 . listToMaybe . catMaybes) . transpose . map toArray
   where
-    toArray (X n) = [Just n,Nothing,Nothing]
-    toArray (Y n) = [Nothing,Just n,Nothing]
-    toArray (Z n) = [Nothing,Nothing,Just n]
+    toArray (P.X n) = [Just n,Nothing,Nothing]
+    toArray (P.Y n) = [Nothing,Just n,Nothing]
+    toArray (P.Z n) = [Nothing,Nothing,Just n]
 
 component :: Num b => CharParser () Char -> P.ReadNum b -> CharParser () [b]
 component var numRead = do
