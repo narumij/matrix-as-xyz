@@ -1,6 +1,6 @@
 # Revision history for matrix-as-xyz
 
-## 0.1.1.3  -- 2020-?-?
+## 0.1.2.0  -- 2020-?-?
 
 * Tex出力の追加
 

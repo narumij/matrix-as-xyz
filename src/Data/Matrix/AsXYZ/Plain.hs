@@ -4,71 +4,54 @@ module Data.Matrix.AsXYZ.Plain (
   abcLabel,
 )where
 
-import Control.Monad (join)
+import Control.Monad
 
-import Data.Char (isAlpha)
+import Data.Ratio
 import Data.List (intercalate)
-import Data.Ratio (Ratio)
-import Data.Ratio.Slash (getRatio,Slash(..))
-import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
+import Data.Matrix
+import Numeric
 
--- +または-が先頭に必ずあるようにする
-addPlusSign :: String -> String
-addPlusSign xs@('-':_) = xs
-addPlusSign xs         = '+' : xs
+import Data.Matrix.AsXYZ.Common
 
--- 符号付きの数値文字列にする
-numStr :: (Integral a) => Ratio a -> String
-numStr = addPlusSign . show . Slash
+num :: Integral a => Ratio a -> String
+num r | d == 1 = int n
+      | otherwise = frac n d
+  where
+    nn = numerator r
+    d = denominator r
+    n = if nn >= 0 then nn else nn * (-1)
+    showInt' = flip showInt "" -- Constraint Show class を回避するため
+    int n = showInt' n
+    frac n d = showInt' n ++ "/" ++ showInt' d
 
-varString :: (Integral a) => Ratio a -> String -> String
-varString num label
-　-- 0の場合省略
-  | num == 0   = ""
-  -- 4番目の項目で、変数が付かない場合、数値文字列化
-  | null label = numStr num
-  -- 数値が1で変数がある場合、数値を省略
-  | num == 1   = "+" ++ label
-  -- 数値が-1で変数がある場合、数値を省略
-  | num == -1  = "-" ++ label
-  -- それ以外では数値と変数を文字列化
-  | otherwise  = numStr num ++ label
+rowStr label (x:xs) = texP' label x ++ concatMap (texP label) xs
 
--- 正の係数がついた変数である
-isPrimary :: String -> Bool
-isPrimary x = (hasLetter . reverse) x && isPositive x
+texP label (P var) = "+" ++ texV label var
+texP label (N var) = "-" ++ texV label var
+texP _ Zero = "0"
 
-hasLetter :: String -> Bool
-hasLetter (x:_) = isAlpha x
-hasLetter _     = False
+texP' label (P var) = texV label var
+texP' label (N var) = "-" ++ texV label var
+texP' _ Zero = "0"
 
-isPositive :: String -> Bool
-isPositive ('+':_) = True
-isPositive _       = False
+texV _      (W n) = num $ n
+texV labels var   | 1 == n = label
+                  | otherwise = (++ label) . num $ n 
+  where
+    get (X n) = (0,n)
+    get (Y n) = (1,n)
+    get (Z n) = (2,n)
+    t = get var
+    n = snd t
+    label = labels !! fst t:[]
 
--- 正の係数がついた変数を先頭にする
-varSort :: [String] -> [String]
-varSort parts = filter isPrimary parts ++ filter (not . isPrimary) parts
+showAs :: (Integral a) => String -> Matrix (Ratio a) -> String
+showAs labels = intercalate "," . map (rowStr labels . rowVars) . take 3 . toLists
 
-row :: (Integral a) => [String] -> [Ratio a] -> String
-row labels line = join . varSort $ zipWith varString line labels
+xyzLabel :: String
+xyzLabel = "xyz"
 
-refineRow :: String -> String
-refineRow s
-  -- 全ての項目が省略されていると空文字列になっているので、0
-  | null s = "0"
-  -- 先頭の項目が正の場合、+記号を省略できるので削る
-  | head s == '+' = tail s
-  | otherwise = s
+abcLabel :: String
+abcLabel = "abc"
 
-rowString :: (Integral a) => [String] -> [Ratio a] -> String
-rowString labels line = refineRow (row labels line)
 
-xyzLabel :: [String]
-xyzLabel = ["x","y","z",""]
-
-abcLabel :: [String]
-abcLabel = ["a","b","c",""]
-
-showAs :: (Integral a) => [String] -> Matrix (Ratio a) -> String
-showAs labels = intercalate "," . map (rowString labels) . take 3 . toLists
