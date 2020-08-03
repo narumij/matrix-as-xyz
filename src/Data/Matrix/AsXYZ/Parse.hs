@@ -6,15 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 -}
-module Data.Matrix.AsXYZ.Parse (
-  Value,
-  equivalentPositions,
-  transformPpABC,
-  transformQqXYZ,
-  ratio,
-  integral,
-  floating,
-  ) where
+module Data.Matrix.AsXYZ.Parse where
 
 import Control.Monad
 import Data.Char

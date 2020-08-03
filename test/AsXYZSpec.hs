@@ -39,24 +39,24 @@ readData = [
   ("x+1/2,y-2/3,z+3/4",
     {- shouldBe -}
     fromLists [
-      [1,0,0,1%2],
+      [1,0,0, 1%2],
       [0,1,0,-2%3],
-      [0,0,1,3%4],
-      [0,0,0,1]]),
+      [0,0,1, 3%4],
+      [0,0,0,   1]]),
   ("x-5/8,y+7/16,z-9/32",
     {- shouldBe -}
     fromLists [
-      [1,0,0,-5%8],
-      [0,1,0,7%16],
+      [1,0,0,-5%8 ],
+      [0,1,0, 7%16],
       [0,0,1,-9%32],
-      [0,0,0,1]]),
+      [0,0,0,    1]]),
   ("1/2,1/2,1/2",
     {- shouldBe -}
     fromLists [
       [0,0,0,1%2],
       [0,0,0,1%2],
       [0,0,0,1%2],
-      [0,0,0,1]])
+      [0,0,0,  1]])
   ]
 
 spec :: Spec
@@ -69,18 +69,6 @@ spec = do
 
      it "read x,y,z" $ do
        fromXYZ "x,y,z" `shouldBe` (identity 4)
-
-     it "read x,y,z+1" $ do
-       fromXYZ "x,y,z"
-        `shouldBe` (fromLists [[1,0,0,0],[0,1,0,0],[0,0,1,1],[0,0,0,1]])
-
-     it "read x,y,z+1/2" $ do
-       fromXYZ "x,y,z"
-        `shouldBe` (fromLists [[1,0,0,0],[0,1,0,0],[0,0,1,1%2],[0,0,0,1]])
-
-     it "read 1/2,1/2,1/2" $ do
-       fromXYZ "x,y,z"
-        `shouldBe` (fromLists [[0,0,0,1%2],[0,0,0,1%2],[0,0,0,1%2],[0,0,0,1]])
 
      it "read X,Y,Z" $ do
        fromXYZ "X,Y,Z"

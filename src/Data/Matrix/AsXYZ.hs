@@ -25,7 +25,7 @@ import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
 import Text.ParserCombinators.Parsec (parse,ParseError)
 
 import Data.Ratio.Slash (getRatio,Slash(..))
-import Data.Matrix.AsXYZ.Parse (equivalentPositions,transformPpABC,ratio)
+import qualified Data.Matrix.AsXYZ.Parse as XYZ(equivalentPositions,transformPpABC,ratio)
 import qualified Data.Matrix.AsXYZ.Plain as Plain (showAs,xyzLabel,abcLabel)
 
 -- | Create a matirx from xyz coordinate string of general equivalent position
@@ -45,11 +45,11 @@ import qualified Data.Matrix.AsXYZ.Plain as Plain (showAs,xyzLabel,abcLabel)
 -- >                                                              (  9 10 11 12 )
 -- > fromXYZ "x+2y+3z+4,5x+6y+7z+8,9x+10y+11z+12" :: Matrix Int = (  0  0  0  1 )
 fromXYZ :: Integral a => String -> Matrix (Ratio a)
-fromXYZ input = unsafeGet $ makeMatrix <$> parse (equivalentPositions ratio) input input
+fromXYZ input = unsafeGet $ makeMatrix <$> parse (XYZ.equivalentPositions XYZ.ratio) input input
 
 -- | Maybe version
 fromXYZ' :: Integral a => String -> Maybe (Matrix (Ratio a))
-fromXYZ' input = get $ makeMatrix <$> parse (equivalentPositions ratio) input input
+fromXYZ' input = get $ makeMatrix <$> parse (XYZ.equivalentPositions XYZ.ratio) input input
 
 -- | It's uses abc instead of xyz
 --
@@ -58,7 +58,7 @@ fromXYZ' input = get $ makeMatrix <$> parse (equivalentPositions ratio) input in
 -- >                                      ( 0 % 1 0 % 1 1 % 1 0 % 1 )
 -- > fromXYZ "a,b,c" :: Matrix Rational = ( 0 % 1 0 % 1 0 % 1 1 % 1 )
 fromABC :: Integral a => String -> Matrix (Ratio a)
-fromABC input = unsafeGet $ makeMatrix <$> parse (transformPpABC ratio) input input
+fromABC input = unsafeGet $ makeMatrix <$> parse (XYZ.transformPpABC XYZ.ratio) input input
 
 makeMatrix :: Num a => [[a]] -> Matrix a
 makeMatrix m = fromLists m <-> fromLists [[0,0,0,1]]

@@ -1,5 +1,6 @@
 module Data.Matrix.AsXYZ.Plain (
   showAs,
+  showAs',
   xyzLabel,
   abcLabel,
 )where
@@ -44,6 +45,11 @@ texV labels var   | 1 == n = label
     t = get var
     n = snd t
     label = labels !! fst t:[]
+
+showAs' :: (Integral a) => String -> Matrix (Ratio a) -> String
+showAs' labels = intercalate "," . map (rowStr labels . rowVars . hoge) . take 2 . toLists
+  where
+    hoge (x:y:z) = x:y:0:z
 
 showAs :: (Integral a) => String -> Matrix (Ratio a) -> String
 showAs labels = intercalate "," . map (rowStr labels . rowVars) . take 3 . toLists
