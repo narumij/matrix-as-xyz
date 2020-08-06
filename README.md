@@ -6,8 +6,6 @@
 
 Haskell Jones-Faithful notation (also called coordinate triplet) Library
 
-Treat matrix as xyz representation like International Tables for Crystallography
-
 ## License
 
 See the [LICENSE](https://raw.githubusercontent.com/narumij/matrix-as-xyz/master/LICENSE)
