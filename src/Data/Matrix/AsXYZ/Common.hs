@@ -1,14 +1,46 @@
 module Data.Matrix.AsXYZ.Common (
   Sign(..),
   Var(..),
+  Val(..),
   rowVars,
   ) where
 
 import Data.Ratio
 import Numeric
 
-data Sign a = P a | N a | Zero deriving (Show,Eq)
-data Var a = X a | Y a | Z a | W a deriving (Show,Eq)
+data Sign a
+  = P a
+  | N a
+  | Zero
+  deriving (Show,Eq)
+
+data Var a
+  = X a
+  | Y a
+  | Z a
+  | W a
+  deriving (Show,Eq)
+
+-- 数値の型情報
+data Val a
+  -- 整数
+  = I a
+  -- 浮動小数
+  | F a
+  -- 分数
+  | R a
+  deriving Show
+
+instance Functor Var where
+  fmap f (X a) = X (f a)
+  fmap f (Y a) = Y (f a)
+  fmap f (Z a) = Z (f a)
+  fmap f (W a) = W (f a)
+
+instance Functor Val where
+  fmap f (I a) = I (f a)
+  fmap f (F a) = F (f a)
+  fmap f (R a) = R (f a)
 
 rowVars :: Integral a => [Ratio a] -> [Sign (Var (Ratio a))]
 rowVars = reduceVars . sortVars . toVars

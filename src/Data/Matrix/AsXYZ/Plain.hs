@@ -12,7 +12,7 @@ import Data.List (intercalate)
 import Data.Matrix
 import Numeric
 
-import Data.Matrix.AsXYZ.Common
+import Data.Matrix.AsXYZ.Common(Sign(..),Var(..),rowVars)
 
 num :: Integral a => Ratio a -> String
 num r | d == 1 = int n

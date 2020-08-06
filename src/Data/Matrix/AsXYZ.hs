@@ -25,7 +25,7 @@ import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
 import Text.ParserCombinators.Parsec (parse,ParseError)
 
 import Data.Ratio.Slash (getRatio,Slash(..))
-import qualified Data.Matrix.AsXYZ.Parse as XYZ(equivalentPositions,transformPpABC,ratio)
+import qualified Data.Matrix.AsXYZ.ParseXYZ as XYZ(equivalentPositions,transformPpABC,ratio)
 import qualified Data.Matrix.AsXYZ.Plain as Plain (showAs,xyzLabel,abcLabel)
 
 -- | Create a matirx from xyz coordinate string of general equivalent position

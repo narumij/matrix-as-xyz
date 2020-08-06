@@ -25,7 +25,7 @@ import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
 import Text.ParserCombinators.Parsec (parse,ParseError)
 
 import Data.Ratio.Slash (getRatio,Slash(..))
-import qualified Data.Matrix.AsXY.Parse as XY (equivalentPositions,transformPpABC,ratio)
+import qualified Data.Matrix.AsXYZ.ParseXY as XY (equivalentPositions,transformPpABC,ratio)
 
 import qualified Data.Matrix.AsXYZ.Plain as Plain
 

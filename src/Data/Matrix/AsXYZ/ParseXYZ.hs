@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 -}
-module Data.Matrix.AsXYZ.Parse where
+module Data.Matrix.AsXYZ.ParseXYZ where
 
 import Control.Monad
 import Data.Char
@@ -20,6 +20,8 @@ import Data.Ratio.Slash
 import Data.Ratio.ParseFloat (readFloatingPoint)
 
 import Data.Matrix (fromList,fromLists,Matrix(..),joinBlocks,(<->))
+
+import Data.Matrix.AsXYZ.Common (Var(..),Val(..))
 
 -- | General equivalent positions parser
 equivalentPositions :: Num a =>
@@ -57,36 +59,8 @@ integral (F s) = Left  $ "cannot convert to integer from " ++ s ++ "."
 floating :: Floating a => Value -> Either String a
 floating v = fromRational <$> ratio v
 
--- 数値の型情報
-data Val a
-  -- 整数
-  = I a
-  -- 浮動小数
-  | F a
-  -- 分数
-  | R a
-  deriving Show
-
-instance Functor Val where
-  fmap f (I a) = I (f a)
-  fmap f (F a) = F (f a)
-  fmap f (R a) = R (f a)
-
 -- | Type of numeric type information generated in the middle
 type Value = Val String
-
-data Var a
-  = X a
-  | Y a
-  | Z a
-  | W a
-  deriving (Show,Eq)
-
-instance Functor Var where
-  fmap f (X a) = X (f a)
-  fmap f (Y a) = Y (f a)
-  fmap f (Z a) = Z (f a)
-  fmap f (W a) = W (f a)
 
 v c = f $ toLower <$> c
   where

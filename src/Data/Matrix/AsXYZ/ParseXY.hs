@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 -}
-module Data.Matrix.AsXY.Parse (
+module Data.Matrix.AsXYZ.ParseXY (
   equivalentPositions,
   transformPpABC,
   transformQqXYZ,
@@ -20,7 +20,8 @@ import Data.Char
 import Data.Maybe
 import Data.List
 import Text.ParserCombinators.Parsec
-import Data.Matrix.AsXYZ.Parse (ReadNum(..),Var(..),overlap,sign,elementBody,minus,ratio,integral,floating)
+import Data.Matrix.AsXYZ.ParseXYZ (ReadNum(..),overlap,sign,elementBody,minus,ratio,integral,floating)
+import Data.Matrix.AsXYZ.Common (Var(..))
 
 xy :: CharParser () Char
 xy = oneOf "xyXY"
