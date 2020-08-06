@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Read and Display matrix as represented likes 'x,y' called Jones-Faithful notation or coordinate triplet.
+Read and Display Jones-Faithfull notation for planegroup (e.g. 'x,y')
 
 -}
 module Data.Matrix.AsXY (

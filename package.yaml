@@ -11,7 +11,7 @@ extra-source-files:
 # - ChangeLog.md
 
 # Metadata used when publishing your package
-synopsis:            Read and Display Jones-Faithfull notation
+synopsis:            Read and Display Jones-Faithfull notation for spacegroup and planegroup
 category:            Chemistry
 
 # To avoid duplicated efforts in documentation and dealing with the
