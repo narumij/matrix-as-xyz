@@ -5,7 +5,7 @@ import Control.Exception (evaluate)
 import Test.Hspec
 import Data.Ratio
 import Data.Matrix
-import Data.Matrix.AsXY
+import Data.Matrix.AsXYZ
 
 readTest str mat = do
   it ("read " ++ str) $ do

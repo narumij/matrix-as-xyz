@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1b2e9d213e1204000e2da44f8834ee7ba8ed28f38d47ec454d10f535e6895233
+-- hash: 44baaebc9c92a8247f166d2e4ce54c025bca25e65992f5e10bdae3551bb1d2fd
 
 name:           matrix-as-xyz
 version:        0.1.2.0
@@ -28,7 +28,6 @@ source-repository head
 
 library
   exposed-modules:
-      Data.Matrix.AsXY
       Data.Matrix.AsXYZ
       Data.Matrix.AsXYZ.Common
       Data.Matrix.AsXYZ.ParseXY
