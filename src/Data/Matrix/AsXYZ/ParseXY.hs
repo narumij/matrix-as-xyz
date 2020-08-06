@@ -8,8 +8,8 @@ Portability : ?
 -}
 module Data.Matrix.AsXYZ.ParseXY (
   equivalentPositions,
-  transformPpABC,
-  transformQqXYZ,
+  transformPpAB,
+  transformQqXY,
   ratio,
   integral,
   floating,
@@ -36,12 +36,12 @@ equivalentPositions :: Num a =>
 equivalentPositions = components xy
 
 -- | Same as equivalentPositions but uses abc instead of xyz
-transformPpABC :: Num a => ReadNum a -> CharParser () [[a]]
-transformPpABC = components ab
+transformPpAB :: Num a => ReadNum a -> CharParser () [[a]]
+transformPpAB = components ab
 
 -- | Alias of equivalentPositions
-transformQqXYZ :: Num a => ReadNum a -> CharParser () [[a]]
-transformQqXYZ = components xy
+transformQqXY :: Num a => ReadNum a -> CharParser () [[a]]
+transformQqXY = components xy
 
 v c = f $ toLower <$> c
   where

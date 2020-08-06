@@ -25,7 +25,7 @@ import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
 import Text.ParserCombinators.Parsec (parse,ParseError)
 
 import Data.Ratio.Slash (getRatio,Slash(..))
-import qualified Data.Matrix.AsXYZ.ParseXY as XY (equivalentPositions,transformPpABC,ratio)
+import qualified Data.Matrix.AsXYZ.ParseXY as XY (equivalentPositions,transformPpAB,ratio)
 
 import qualified Data.Matrix.AsXYZ.Plain as Plain
 
@@ -39,7 +39,7 @@ fromXY' input = get $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) in
 
 -- | It's uses abc instead of xyz
 fromAB :: Integral a => String -> Matrix (Ratio a)
-fromAB input = unsafeGet $ makeMatrix' <$> parse (XY.transformPpABC XY.ratio) input input
+fromAB input = unsafeGet $ makeMatrix' <$> parse (XY.transformPpAB XY.ratio) input input
 
 makeMatrix' :: Num a => [[a]] -> Matrix a
 makeMatrix' m = fromLists m <-> fromLists [[0,0,1]]
