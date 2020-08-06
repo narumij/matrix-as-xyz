@@ -30,14 +30,20 @@ import qualified Data.Matrix.AsXYZ.ParseXY as XY (equivalentPositions,transformP
 import qualified Data.Matrix.AsXYZ.Plain as Plain
 
 -- | Create a matirx from xyz coordinate string of general equivalent position
+-- >>> toLists . fromXY $ "x,y"
+-- [[1 % 1,0 % 1,0 % 1],[0 % 1,1 % 1,0 % 1],[0 % 1,0 % 1,1 % 1]]
 fromXY :: Integral a => String -> Matrix (Ratio a)
 fromXY input = unsafeGet $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) input input
 
 -- | Maybe version
+-- >>> toLists <$> fromXY' "x,y"
+-- Just [[1 % 1,0 % 1,0 % 1],[0 % 1,1 % 1,0 % 1],[0 % 1,0 % 1,1 % 1]]
 fromXY' :: Integral a => String -> Maybe (Matrix (Ratio a))
 fromXY' input = get $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) input input
 
 -- | It's uses abc instead of xyz
+-- >>> toLists . fromAB $ "a,b"
+-- [[1 % 1,0 % 1,0 % 1],[0 % 1,1 % 1,0 % 1],[0 % 1,0 % 1,1 % 1]]
 fromAB :: Integral a => String -> Matrix (Ratio a)
 fromAB input = unsafeGet $ makeMatrix' <$> parse (XY.transformPpAB XY.ratio) input input
 
@@ -55,6 +61,8 @@ get e = case e of
   Right m -> Just m
 
 -- | Get the xyz representation of matrix
+-- >>> prettyXY (identity 4 :: Matrix Rational)
+-- "x,y"
 prettyXY :: (Integral a) =>
              Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
           -> String
@@ -63,8 +71,8 @@ prettyXY = Plain.showAs' Plain.xyzLabel
 
 -- | It's uses abc instead of xyz as text format
 --
--- >>> prettyABC (identity 4 :: Matrix Rational)
--- "a,b,c"
+-- >>> prettyAB (identity 4 :: Matrix Rational)
+-- "a,b"
 prettyAB :: (Integral a) =>
              Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
           -> String

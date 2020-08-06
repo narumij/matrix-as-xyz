@@ -37,6 +37,12 @@ spec = do
      it "read empty throws exception" $ do
        evaluate (fromXY "") `shouldThrow` anyException
 
+     it "read a,b throws exception" $ do
+       evaluate (fromXY "a,b") `shouldThrow` anyException
+
+     it "read x,y throws exception" $ do
+       evaluate (fromAB "x,y") `shouldThrow` anyException
+
      it "read x,y" $ do
        fromXY "x,y" `shouldBe` (identity 3)
 
