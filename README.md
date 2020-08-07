@@ -6,7 +6,7 @@
 
 Haskell Jones-Faithful notation (also called coordinate triplet) Library
 
-## How to use
+## Quickstart
 
 ```haskell
 repl> :m Data.Matrix.AsXYZ
