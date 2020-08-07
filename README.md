@@ -6,6 +6,25 @@
 
 Haskell Jones-Faithful notation (also called coordinate triplet) Library
 
+## How to use
+
+```haskell
+repl> :m Data.Matrix.AsXYZ
+repl> fromXYZ "x,y,z"
+┌                         ┐
+│ 1 % 1 0 % 1 0 % 1 0 % 1 │
+│ 0 % 1 1 % 1 0 % 1 0 % 1 │
+│ 0 % 1 0 % 1 1 % 1 0 % 1 │
+│ 0 % 1 0 % 1 0 % 1 1 % 1 │
+└                         ┘
+```
+
+```haskell
+repl> :m Data.Matrix Data.Matrix.AsXYZ
+repl> prettyXYZ . identity $ 4
+"x,y,z"
+```
+
 ## License
 
 See the [LICENSE](https://raw.githubusercontent.com/narumij/matrix-as-xyz/master/LICENSE)
