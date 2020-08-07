@@ -1,12 +1,12 @@
 {- |
 Module      : Data.Matrix.AsXYZ
-Copyright   : (c) Jun Narumi 2017-2018
+Copyright   : (c) Jun Narumi 2017-2020
 License     : BSD3
 Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Read and Display matrix with xyz reperesentation. (like general equivalnet position of International tables of Crystallography.)
+Read and Display Jones-Faithfull notation for spacegroup (e.g. 'x,y,z') and planegroup (e.g. 'x,y')
 
 -}
 module Data.Matrix.AsXYZ (
@@ -15,17 +15,25 @@ module Data.Matrix.AsXYZ (
   fromABC,
   prettyXYZ,
   prettyABC,
+  fromXY,
+  fromXY',
+  fromAB,
+  prettyXY,
+  prettyAB,
   ) where
 
 import Control.Monad (join)
 import Data.Char (isAlpha)
 import Data.List (intercalate)
-import Data.Ratio (Ratio)
+import Data.Ratio (Ratio,(%))
 import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
 import Text.ParserCombinators.Parsec (parse,ParseError)
 
 import Data.Ratio.Slash (getRatio,Slash(..))
-import Data.Matrix.AsXYZ.Parse (equivalentPositions,transformPpABC,ratio)
+import qualified Data.Matrix.AsXYZ.ParseXYZ as XYZ(equivalentPositions,transformPpABC,ratio)
+import qualified Data.Matrix.AsXYZ.ParseXY as XY (equivalentPositions,transformPpAB)
+import qualified Data.Matrix.AsXYZ.ParseXYZ as XY(ratio)
+import qualified Data.Matrix.AsXYZ.Plain as Plain (showAs,showAs',xyzLabel,abcLabel)
 
 -- | Create a matirx from xyz coordinate string of general equivalent position
 --
@@ -44,11 +52,11 @@ import Data.Matrix.AsXYZ.Parse (equivalentPositions,transformPpABC,ratio)
 -- >                                                              (  9 10 11 12 )
 -- > fromXYZ "x+2y+3z+4,5x+6y+7z+8,9x+10y+11z+12" :: Matrix Int = (  0  0  0  1 )
 fromXYZ :: Integral a => String -> Matrix (Ratio a)
-fromXYZ input = unsafeGet $ makeMatrix <$> parse (equivalentPositions ratio) input input
+fromXYZ input = unsafeGet $ makeMatrix <$> parse (XYZ.equivalentPositions XYZ.ratio) input input
 
 -- | Maybe version
 fromXYZ' :: Integral a => String -> Maybe (Matrix (Ratio a))
-fromXYZ' input = get $ makeMatrix <$> parse (equivalentPositions ratio) input input
+fromXYZ' input = get $ makeMatrix <$> parse (XYZ.equivalentPositions XYZ.ratio) input input
 
 -- | It's uses abc instead of xyz
 --
@@ -57,7 +65,7 @@ fromXYZ' input = get $ makeMatrix <$> parse (equivalentPositions ratio) input in
 -- >                                      ( 0 % 1 0 % 1 1 % 1 0 % 1 )
 -- > fromXYZ "a,b,c" :: Matrix Rational = ( 0 % 1 0 % 1 0 % 1 1 % 1 )
 fromABC :: Integral a => String -> Matrix (Ratio a)
-fromABC input = unsafeGet $ makeMatrix <$> parse (transformPpABC ratio) input input
+fromABC input = unsafeGet $ makeMatrix <$> parse (XYZ.transformPpABC XYZ.ratio) input input
 
 makeMatrix :: Num a => [[a]] -> Matrix a
 makeMatrix m = fromLists m <-> fromLists [[0,0,0,1]]
@@ -74,69 +82,7 @@ get e = case e of
 
 ----------------------------------
 
--- +または-が銭湯に必ずあるようにする
-addPlusSign :: String -> String
-addPlusSign xs@('-':_) = xs
-addPlusSign xs         = '+' : xs
-
--- 符号付きの数値文字列にする
-numStr :: (Integral a) => Ratio a -> String
-numStr = addPlusSign . show . Slash
-
-varString :: (Integral a) => Ratio a -> String -> String
-varString num label
-　-- 0の場合省略
-  | num == 0   = ""
-  -- 4番目の項目で、変数が付かない場合、数値文字列化
-  | null label = numStr num
-  -- 数値が1で変数がある場合、数値を省略
-  | num == 1   = "+" ++ label
-  -- 数値が-1で変数がある場合、数値を省略
-  | num == -1  = "-" ++ label
-  -- それ以外では数値と変数を文字列化
-  | otherwise  = numStr num ++ label
-
--- 正の係数がついた変数である
-isPrimary :: String -> Bool
-isPrimary x = (hasLetter . reverse) x && isPositive x
-
-hasLetter :: String -> Bool
-hasLetter (x:_) = isAlpha x
-hasLetter _     = False
-
-isPositive :: String -> Bool
-isPositive ('+':_) = True
-isPositive _       = False
-
--- 正の係数がついた変数を先頭にする
-varSort :: [String] -> [String]
-varSort parts = filter isPrimary parts ++ filter (not . isPrimary) parts
-
-row :: (Integral a) => [String] -> [Ratio a] -> String
-row labels line = join . varSort $ zipWith varString line labels
-
-refineRow :: String -> String
-refineRow s
-  -- 全ての項目が省略されていると空文字列になっているので、0
-  | null s = "0"
-  -- 先頭の項目が正の場合、+記号を省略できるので削る
-  | head s == '+' = tail s
-  | otherwise = s
-
-rowString :: (Integral a) => [String] -> [Ratio a] -> String
-rowString labels line = refineRow (row labels line)
-
-xyzLabel :: [String]
-xyzLabel = ["x","y","z",""]
-
-abcLabel :: [String]
-abcLabel = ["a","b","c",""]
-
-showAs :: (Integral a) => [String] -> Matrix (Ratio a) -> String
-showAs labels = intercalate "," . map (rowString labels) . take 3 . toLists
-
-
--- | Get the xyz representation of matrix
+-- | Get the xyz string of matrix
 --
 -- >>> prettyXYZ (identity 4 :: Matrix Rational)
 -- "x,y,z"
@@ -148,14 +94,65 @@ showAs labels = intercalate "," . map (rowString labels) . take 3 . toLists
 prettyXYZ :: (Integral a) =>
              Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
           -> String
-prettyXYZ = showAs xyzLabel
+prettyXYZ = Plain.showAs Plain.xyzLabel
 
-
--- | It's uses abc instead of xyz
+-- | It's uses abc instead of xyz as text format
 --
 -- >>> prettyABC (identity 4 :: Matrix Rational)
 -- "a,b,c"
 prettyABC :: (Integral a) =>
              Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
           -> String
-prettyABC = showAs abcLabel
+prettyABC = Plain.showAs Plain.abcLabel
+
+-- | Create a matirx from xyz coordinate string of general equivalent position
+--
+
+-- >>> toLists . fromXY $ "x,y"
+-- [[1 % 1,0 % 1,0 % 1],[0 % 1,1 % 1,0 % 1],[0 % 1,0 % 1,1 % 1]]
+fromXY :: Integral a =>
+          String
+       -> Matrix (Ratio a)
+fromXY input = unsafeGet $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) input input
+
+-- | Maybe version
+--
+
+-- >>> toLists <$> fromXY' "x,y"
+-- Just [[1 % 1,0 % 1,0 % 1],[0 % 1,1 % 1,0 % 1],[0 % 1,0 % 1,1 % 1]]
+fromXY' :: Integral a =>
+           String
+        -> Maybe (Matrix (Ratio a))
+fromXY' input = get $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) input input
+
+-- | It's uses abc instead of xyz
+--
+
+-- >>> toLists . fromAB $ "a,b"
+-- [[1 % 1,0 % 1,0 % 1],[0 % 1,1 % 1,0 % 1],[0 % 1,0 % 1,1 % 1]]
+fromAB :: Integral a => 
+          String
+       -> Matrix (Ratio a)
+fromAB input = unsafeGet $ makeMatrix' <$> parse (XY.transformPpAB XY.ratio) input input
+
+makeMatrix' :: Num a => [[a]] -> Matrix a
+makeMatrix' m = fromLists m <-> fromLists [[0,0,1]]
+
+-- | Get the xyz string of matrix
+--
+
+-- >>> prettyXY (identity 4 :: Matrix Rational)
+-- "x,y"
+prettyXY :: (Integral a) =>
+             Matrix (Ratio a) -- ^ 2x2, 2x3 or 3x3 matrix
+          -> String
+prettyXY = Plain.showAs' Plain.xyzLabel
+
+-- | It's uses abc instead of xyz as text format
+--
+-- >>> prettyAB (identity 4 :: Matrix Rational)
+-- "a,b"
+prettyAB :: (Integral a) =>
+             Matrix (Ratio a) -- ^ 2x2, 2x3 or 3x3 matrix
+          -> String
+prettyAB = Plain.showAs' Plain.abcLabel

@@ -4,9 +4,26 @@
 [![Hackage page (downloads and API reference)][hackage-png]][hackage]
 [![Hackage-Deps][hackage-deps-png]][hackage-deps]
 
-Haskell General equivalent positions Library
+Haskell Jones-Faithful notation (also called coordinate triplet) Library
 
-Treat matrix as xyz representation like International Tables for X-ray Crystallography
+## Quickstart
+
+```haskell
+repl> :m Data.Matrix.AsXYZ
+repl> fromXYZ "x,y,z"
+┌                         ┐
+│ 1 % 1 0 % 1 0 % 1 0 % 1 │
+│ 0 % 1 1 % 1 0 % 1 0 % 1 │
+│ 0 % 1 0 % 1 1 % 1 0 % 1 │
+│ 0 % 1 0 % 1 0 % 1 1 % 1 │
+└                         ┘
+```
+
+```haskell
+repl> :m Data.Matrix Data.Matrix.AsXYZ
+repl> prettyXYZ . identity $ 4
+"x,y,z"
+```
 
 ## License
 
