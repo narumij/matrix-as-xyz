@@ -25,6 +25,12 @@ repl> prettyXYZ . identity $ 4
 "x,y,z"
 ```
 
+If you wanna use newest version, edit stack.yaml like below.
+```
+extra-deps:
+- location: https://github.com/narumij/matrix-as-xyz/archive/0.1.2.1.tar.gz
+```
+
 ## License
 
 See the [LICENSE](https://raw.githubusercontent.com/narumij/matrix-as-xyz/master/LICENSE)
