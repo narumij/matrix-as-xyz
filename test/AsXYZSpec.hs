@@ -88,6 +88,12 @@ spec = do
      it "read A,B,C" $ do
        fromABC "A,B,C" `shouldBe` (identity 4)
 
+     it "row size" $ do
+       (nrows . fromXYZ $ "0,0,0") `shouldBe` 4
+
+     it "col size" $ do
+       (ncols . fromXYZ $ "0,0,0") `shouldBe` 4
+
    describe "Data.Matrix.AsXYZ.prettyXYZ" $ do
 
      it "show 0 (3x3)" $ do
