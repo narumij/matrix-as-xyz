@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Jones-Faithfull notation parser for spacegroup.
+Jones-Faithful notation parser for spacegroup.
 
 -}
 module Data.Matrix.AsXYZ.ParseXYZ (
