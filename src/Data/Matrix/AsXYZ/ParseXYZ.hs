@@ -1,12 +1,27 @@
 {- |
-Module      : Data.Matrix.AsXYZ.Parse
-Copyright   : (c) Jun Narumi 2018
+Module      : Data.Matrix.AsXYZ.ParseXYZ
+Copyright   : (c) Jun Narumi 2018-2020
 License     : BSD3
 Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
+
+Jones-Faithfull notation parser for spacegroup.
+
 -}
-module Data.Matrix.AsXYZ.ParseXYZ where
+module Data.Matrix.AsXYZ.ParseXYZ (
+  ReadNum(..),
+  equivalentPositions,
+  transformPpABC,
+  transformQqXYZ,
+  ratio,
+  floating,
+  integral,
+  sign,
+  minus,
+  overlap,
+  elementBody,
+  ) where
 
 import Control.Monad
 import Data.Char
@@ -23,40 +38,54 @@ import Data.Matrix (fromList,fromLists,Matrix(..),joinBlocks,(<->))
 
 import Data.Matrix.AsXYZ.Common (Var(..),Val(..))
 
--- | General equivalent positions parser
+-- | Jones-Faithful notation parser
+--
+-- >>> parse (equivalentPositions integral) "" "x+1,y+2,z+3"
+-- Right [[1,0,0,1],[0,1,0,2],[0,0,1,3]]
 equivalentPositions :: Num a =>
-　　　　　　　　　　　　　　ReadNum a -- ^ use converter below
+　　　　　　　　　　　　　　ReadNum a -- ^ ratio or floating or integral
 　　　　　　　　　　　　 -> CharParser () [[a]]
 equivalentPositions = components xyz
 
 -- | Same as equivalentPositions but uses abc instead of xyz
+--
+-- >>> parse (transformPpABC integral) "" "a+1,b+2,c+3"
+-- Right [[1,0,0,1],[0,1,0,2],[0,0,1,3]]
 transformPpABC :: Num a => ReadNum a -> CharParser () [[a]]
 transformPpABC = components abc
 
 -- | Alias of equivalentPositions
+--
+-- >>> parse (transformQqXYZ integral) "" "x+1,y+2,z+3"
+-- Right [[1,0,0,1],[0,1,0,2],[0,0,1,3]]
 transformQqXYZ :: Num a => ReadNum a -> CharParser () [[a]]
 transformQqXYZ = components xyz
 
 -- | Converter of 3 kind of number (int,float,ratio) string to rational
 --
--- Use it for equivalentPositions or something parseer
-ratio :: Integral a => Value -> Either String (Ratio a)
+-- >>> parse (equivalentPositions ratio) "" "x+1,y+2,z+3"
+-- Right [[1 % 1,0 % 1,0 % 1,1 % 1],[0 % 1,1 % 1,0 % 1,2 % 1],[0 % 1,0 % 1,1 % 1,3 % 1]]
+ratio :: Integral a => ReadNum (Ratio a)
 ratio (I s) = Right $ getRatio . read $ s
 ratio (R s) = Right $ getRatio . read $ s
 ratio (F s) = Right $ readFloatingPoint s
 
 -- | Converter of integral number description to integral
 --
--- Use it for equivalentPositions or something parseer
-integral :: Integral a => Value -> Either String a
+-- This can not read ratio and floating string (e.g. '1/2', '0.1')
+--
+-- >>> parse (equivalentPositions integral) "" "x+1,y+2,z+3"
+-- Right [[1,0,0,1],[0,1,0,2],[0,0,1,3]]
+integral :: Integral a => ReadNum a
 integral (I s) = Right $ fromIntegral (read s :: Integer)
 integral (R s) = Left  $ "cannot convert to integer from " ++ s ++ "."
 integral (F s) = Left  $ "cannot convert to integer from " ++ s ++ "."
 
 -- | Converter of 3 kind of number description to floating point
 --
--- Use it for equivalentPositions or something parseer
-floating :: Floating a => Value -> Either String a
+-- >>> parse (equivalentPositions floating) "" "x+1,y+2,z+3"
+-- Right [[1.0,0.0,0.0,1.0],[0.0,1.0,0.0,2.0],[0.0,0.0,1.0,3.0]]
+floating :: Floating a => ReadNum a
 floating v = fromRational <$> ratio v
 
 -- | Type of numeric type information generated in the middle
@@ -116,7 +145,6 @@ number'
   <|> try float
   <|> integer
 
--- | numRead関数のシグネチャの簡易表記
 type ReadNum b = Value -> Either String b
 
 number :: ReadNum b -> CharParser () b

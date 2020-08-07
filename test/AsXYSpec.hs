@@ -62,20 +62,20 @@ spec = do
      it "show 0 (2x2)" $ do
        prettyXY (zero 2 2) `shouldBe` "0,0"
 
-     it "show 1 (2x2)" $ do
-       prettyXY (identity 2) `shouldBe` "x,y"
-
      it "show 0 (3x3)" $ do
        prettyXY (zero 3 3) `shouldBe` "0,0"
 
      it "show 0 (3x4)" $ do
-       prettyXY (zero 3 4) `shouldBe` "0,0"
+       prettyXY (zero 2 3) `shouldBe` "0,0"
+
+     it "show 1 (2x2)" $ do
+       prettyXY (identity 2) `shouldBe` "x,y"
 
      it "show 1 (2x3)" $ do
        prettyXY (submatrix 1 2 1 3 $ identity 3) `shouldBe` "x,y"
 
-     it "show 1 (2x2)" $ do
-       prettyXY (submatrix 1 2 1 2 $ identity 3) `shouldBe` "x,y"
+     it "show 1 (3x3)" $ do
+       prettyXY (identity 3) `shouldBe` "x,y"
 
      it "positive first" $ do
        prettyXY (fromLists [[1,-1,-1],[-1,1,-1]]) `shouldBe` "x-y-1,y-x-1"

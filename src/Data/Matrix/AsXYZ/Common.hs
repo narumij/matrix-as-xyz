@@ -1,3 +1,11 @@
+{- |
+Module      : Data.Matrix.AsXYZ.Common
+Copyright   : (c) Jun Narumi 2018-2020
+License     : BSD3
+Maintainer  : narumij@gmail.com
+Stability   : experimental
+Portability : ?
+-}
 module Data.Matrix.AsXYZ.Common (
   Sign(..),
   Var(..),

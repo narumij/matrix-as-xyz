@@ -1,3 +1,14 @@
+{- |
+Module      : Data.Matrix.AsXYZ.ParseXYZ
+Copyright   : (c) Jun Narumi 2018-2020
+License     : BSD3
+Maintainer  : narumij@gmail.com
+Stability   : experimental
+Portability : ?
+
+Jones-Faithfull notation plain text printer.
+
+-}
 module Data.Matrix.AsXYZ.Plain (
   showAs,
   showAs',
@@ -5,13 +16,10 @@ module Data.Matrix.AsXYZ.Plain (
   abcLabel,
 )where
 
-import Control.Monad
-
-import Data.Ratio
+import Data.Ratio (Ratio(..),numerator,denominator)
 import Data.List (intercalate)
-import Data.Matrix
-import Numeric
-
+import Data.Matrix (Matrix(..),toLists)
+import Numeric (showInt)
 import Data.Matrix.AsXYZ.Common(Sign(..),Var(..),rowVars)
 
 num :: Integral a => Ratio a -> String

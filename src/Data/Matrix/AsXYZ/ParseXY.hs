@@ -1,18 +1,18 @@
 {- |
-Module      : Data.Matrix.AsXYZ.Parse
-Copyright   : (c) Jun Narumi 2018
+Module      : Data.Matrix.AsXYZ.ParseXY
+Copyright   : (c) Jun Narumi 2020-2020
 License     : BSD3
 Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
+
+Jones-Faithfull notation parser for planegroup.
+
 -}
 module Data.Matrix.AsXYZ.ParseXY (
   equivalentPositions,
   transformPpAB,
   transformQqXY,
-  ratio,
-  integral,
-  floating,
   ) where
 
 import Control.Monad
@@ -30,16 +30,25 @@ ab :: CharParser () Char
 ab = oneOf "abAB"
 
 -- | General equivalent positions parser
+--
+-- >>> parse (equivalentPositions integral) "" "x+1,y+2"
+-- Right [[1,0,1],[0,1,2]]
 equivalentPositions :: Num a =>
 　　　　　　　　　　　　　　ReadNum a -- ^ use converter below
 　　　　　　　　　　　　 -> CharParser () [[a]]
 equivalentPositions = components xy
 
 -- | Same as equivalentPositions but uses abc instead of xyz
+--
+-- >>> parse (transformPpAB integral) "" "a+1,b+2"
+-- Right [[1,0,1],[0,1,2]]
 transformPpAB :: Num a => ReadNum a -> CharParser () [[a]]
 transformPpAB = components ab
 
 -- | Alias of equivalentPositions
+--
+-- >>> parse (transformQqXY integral) "" "x+1,y+2"
+-- Right [[1,0,1],[0,1,2]]
 transformQqXY :: Num a => ReadNum a -> CharParser () [[a]]
 transformQqXY = components xy
 

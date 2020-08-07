@@ -1,12 +1,12 @@
 {- |
 Module      : Data.Matrix.AsXYZ
-Copyright   : (c) Jun Narumi 2017-2018
+Copyright   : (c) Jun Narumi 2017-2020
 License     : BSD3
 Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Read and Display Jones-Faithfull notation for spacegroup (e.g. 'x,y,z')
+Read and Display Jones-Faithfull notation for spacegroup (e.g. 'x,y,z') and planegroup (e.g. 'x,y')
 
 -}
 module Data.Matrix.AsXYZ (
@@ -31,7 +31,8 @@ import Text.ParserCombinators.Parsec (parse,ParseError)
 
 import Data.Ratio.Slash (getRatio,Slash(..))
 import qualified Data.Matrix.AsXYZ.ParseXYZ as XYZ(equivalentPositions,transformPpABC,ratio)
-import qualified Data.Matrix.AsXYZ.ParseXY as XY (equivalentPositions,transformPpAB,ratio)
+import qualified Data.Matrix.AsXYZ.ParseXY as XY (equivalentPositions,transformPpAB)
+import qualified Data.Matrix.AsXYZ.ParseXYZ as XY(ratio)
 import qualified Data.Matrix.AsXYZ.Plain as Plain (showAs,showAs',xyzLabel,abcLabel)
 
 -- | Create a matirx from xyz coordinate string of general equivalent position
@@ -81,7 +82,7 @@ get e = case e of
 
 ----------------------------------
 
--- | Get the xyz representation of matrix
+-- | Get the xyz string of matrix
 --
 -- >>> prettyXYZ (identity 4 :: Matrix Rational)
 -- "x,y,z"
@@ -105,31 +106,45 @@ prettyABC :: (Integral a) =>
 prettyABC = Plain.showAs Plain.abcLabel
 
 -- | Create a matirx from xyz coordinate string of general equivalent position
+--
+
 -- >>> toLists . fromXY $ "x,y"
 -- [[1 % 1,0 % 1,0 % 1],[0 % 1,1 % 1,0 % 1],[0 % 1,0 % 1,1 % 1]]
-fromXY :: Integral a => String -> Matrix (Ratio a)
+fromXY :: Integral a =>
+          String
+       -> Matrix (Ratio a)
 fromXY input = unsafeGet $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) input input
 
 -- | Maybe version
+--
+
 -- >>> toLists <$> fromXY' "x,y"
 -- Just [[1 % 1,0 % 1,0 % 1],[0 % 1,1 % 1,0 % 1],[0 % 1,0 % 1,1 % 1]]
-fromXY' :: Integral a => String -> Maybe (Matrix (Ratio a))
+fromXY' :: Integral a =>
+           String
+        -> Maybe (Matrix (Ratio a))
 fromXY' input = get $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) input input
 
 -- | It's uses abc instead of xyz
+--
+
 -- >>> toLists . fromAB $ "a,b"
 -- [[1 % 1,0 % 1,0 % 1],[0 % 1,1 % 1,0 % 1],[0 % 1,0 % 1,1 % 1]]
-fromAB :: Integral a => String -> Matrix (Ratio a)
+fromAB :: Integral a => 
+          String
+       -> Matrix (Ratio a)
 fromAB input = unsafeGet $ makeMatrix' <$> parse (XY.transformPpAB XY.ratio) input input
 
 makeMatrix' :: Num a => [[a]] -> Matrix a
 makeMatrix' m = fromLists m <-> fromLists [[0,0,1]]
 
--- | Get the xyz representation of matrix
+-- | Get the xyz string of matrix
+--
+
 -- >>> prettyXY (identity 4 :: Matrix Rational)
 -- "x,y"
 prettyXY :: (Integral a) =>
-             Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
+             Matrix (Ratio a) -- ^ 2x2, 2x3 or 3x3 matrix
           -> String
 prettyXY = Plain.showAs' Plain.xyzLabel
 
@@ -138,6 +153,6 @@ prettyXY = Plain.showAs' Plain.xyzLabel
 -- >>> prettyAB (identity 4 :: Matrix Rational)
 -- "a,b"
 prettyAB :: (Integral a) =>
-             Matrix (Ratio a) -- ^ 3x3, 3x4 or 4x4 matrix
+             Matrix (Ratio a) -- ^ 2x2, 2x3 or 3x3 matrix
           -> String
 prettyAB = Plain.showAs' Plain.abcLabel
