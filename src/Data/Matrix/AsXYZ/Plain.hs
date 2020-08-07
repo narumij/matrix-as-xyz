@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Jones-Faithfull notation plain text printer.
+Jones-Faithful notation plain text printer.
 
 -}
 module Data.Matrix.AsXYZ.Plain (

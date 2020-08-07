@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Read and Display Jones-Faithfull notation for spacegroup (e.g. 'x,y,z') and planegroup (e.g. 'x,y')
+Read and Display Jones-Faithful notation for spacegroup (e.g. 'x,y,z') and planegroup (e.g. 'x,y')
 
 -}
 module Data.Matrix.AsXYZ (

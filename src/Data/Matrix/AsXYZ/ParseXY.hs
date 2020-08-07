@@ -6,7 +6,7 @@ Maintainer  : narumij@gmail.com
 Stability   : experimental
 Portability : ?
 
-Jones-Faithfull notation parser for planegroup.
+Jones-Faithful notation parser for planegroup.
 
 -}
 module Data.Matrix.AsXYZ.ParseXY (

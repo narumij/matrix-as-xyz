@@ -1,5 +1,5 @@
 name:                matrix-as-xyz
-version:             0.1.2.0
+version:             0.1.2.1
 github:              "narumij/matrix-as-xyz"
 license:             BSD3
 author:              "Jun Narumi"
@@ -11,7 +11,7 @@ extra-source-files:
 # - ChangeLog.md
 
 # Metadata used when publishing your package
-synopsis:            Read and Display Jones-Faithfull notation for spacegroup and planegroup
+synopsis:            Read and Display Jones-Faithful notation for spacegroup and planegroup
 category:            Chemistry
 
 # To avoid duplicated efforts in documentation and dealing with the
