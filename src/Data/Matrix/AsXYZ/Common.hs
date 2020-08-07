@@ -1,6 +1,6 @@
 {- |
 Module      : Data.Matrix.AsXYZ.Common
-Copyright   : (c) Jun Narumi 2018-2020
+Copyright   : (c) Jun Narumi 2020
 License     : BSD3
 Maintainer  : narumij@gmail.com
 Stability   : experimental
