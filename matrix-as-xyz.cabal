@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f25eef3e4ed97d2e46f431f17bb9ca247aff27fa82d7548f555bf7933437029f
+-- hash: 15ab1dd21ef40ddf3fc76de1c5032ebfbecff0ac440e58b84a9dcb82b66e6c9c
 
 name:           matrix-as-xyz
-version:        0.1.2.0
+version:        0.1.2.1
 synopsis:       Read and Display Jones-Faithful notation for spacegroup and planegroup
 description:    Please see the README on GitHub at <https://github.com/narumij/matrix-as-xyz#readme>
 category:       Chemistry
