@@ -1,5 +1,5 @@
 name:                matrix-as-xyz
-version:             0.1.2.1
+version:             0.1.2.2
 github:              "narumij/matrix-as-xyz"
 license:             BSD3
 author:              "Jun Narumi"
@@ -8,7 +8,7 @@ copyright:           "Jun Narumi"
 
 extra-source-files:
 - README.md
-# - ChangeLog.md
+- ChangeLog.md
 
 # Metadata used when publishing your package
 synopsis:            Read and Display Jones-Faithful notation for spacegroup and planegroup
@@ -21,16 +21,14 @@ description:         Please see the README on GitHub at <https://github.com/naru
 
 dependencies:
 - base >= 4.8 && < 5
-- parsec >= 3.1 && < 4
-- matrix >= 0.3.5 && < 1
-- hspec
-- doctest
+- parsec >= 3 && < 4
+- matrix >= 0.1 && < 0.4
 
 library:
   source-dirs: src
 
 tests:
-  spec-test:
+  matrix-as-xyz-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -39,6 +37,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - matrix-as-xyz
+    - hspec
     - QuickCheck
 
   doctest:
@@ -49,3 +48,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - matrix-as-xyz
+    - doctest

@@ -26,7 +26,7 @@ import Control.Monad (join)
 import Data.Char (isAlpha)
 import Data.List (intercalate)
 import Data.Ratio (Ratio,(%))
-import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->))
+import Data.Matrix (Matrix,fromList,fromLists,toLists,identity,zero,(<->),submatrix)
 import Text.ParserCombinators.Parsec (parse,ParseError)
 
 import Data.Ratio.Slash (getRatio,Slash(..))
@@ -52,11 +52,11 @@ import qualified Data.Matrix.AsXYZ.Plain as Plain (showAs,showAs',xyzLabel,abcLa
 -- >                                                              (  9 10 11 12 )
 -- > fromXYZ "x+2y+3z+4,5x+6y+7z+8,9x+10y+11z+12" :: Matrix Int = (  0  0  0  1 )
 fromXYZ :: Integral a => String -> Matrix (Ratio a)
-fromXYZ input = unsafeGet $ makeMatrix <$> parse (XYZ.equivalentPositions XYZ.ratio) input input
+fromXYZ input = unsafeGet $ makeMatrixS <$> parse (XYZ.equivalentPositions XYZ.ratio) input input
 
 -- | Maybe version
 fromXYZ' :: Integral a => String -> Maybe (Matrix (Ratio a))
-fromXYZ' input = get $ makeMatrix <$> parse (XYZ.equivalentPositions XYZ.ratio) input input
+fromXYZ' input = get $ makeMatrixS <$> parse (XYZ.equivalentPositions XYZ.ratio) input input
 
 -- | It's uses abc instead of xyz
 --
@@ -65,10 +65,10 @@ fromXYZ' input = get $ makeMatrix <$> parse (XYZ.equivalentPositions XYZ.ratio) 
 -- >                                      ( 0 % 1 0 % 1 1 % 1 0 % 1 )
 -- > fromXYZ "a,b,c" :: Matrix Rational = ( 0 % 1 0 % 1 0 % 1 1 % 1 )
 fromABC :: Integral a => String -> Matrix (Ratio a)
-fromABC input = unsafeGet $ makeMatrix <$> parse (XYZ.transformPpABC XYZ.ratio) input input
+fromABC input = unsafeGet $ makeMatrixS <$> parse (XYZ.transformPpABC XYZ.ratio) input input
 
-makeMatrix :: Num a => [[a]] -> Matrix a
-makeMatrix m = fromLists m <-> fromLists [[0,0,0,1]]
+makeMatrixS :: Num a => [[a]] -> Matrix a
+makeMatrixS m = (submatrix 1 3 1 4 . fromLists) m <-> fromLists [[0,0,0,1]]
 
 unsafeGet :: Either ParseError a -> a
 unsafeGet e = case e of
@@ -113,7 +113,7 @@ prettyABC = Plain.showAs Plain.abcLabel
 fromXY :: Integral a =>
           String
        -> Matrix (Ratio a)
-fromXY input = unsafeGet $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) input input
+fromXY input = unsafeGet $ makeMatrixP <$> parse (XY.equivalentPositions XY.ratio) input input
 
 -- | Maybe version
 --
@@ -123,7 +123,7 @@ fromXY input = unsafeGet $ makeMatrix' <$> parse (XY.equivalentPositions XY.rati
 fromXY' :: Integral a =>
            String
         -> Maybe (Matrix (Ratio a))
-fromXY' input = get $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) input input
+fromXY' input = get $ makeMatrixP <$> parse (XY.equivalentPositions XY.ratio) input input
 
 -- | It's uses abc instead of xyz
 --
@@ -133,10 +133,10 @@ fromXY' input = get $ makeMatrix' <$> parse (XY.equivalentPositions XY.ratio) in
 fromAB :: Integral a => 
           String
        -> Matrix (Ratio a)
-fromAB input = unsafeGet $ makeMatrix' <$> parse (XY.transformPpAB XY.ratio) input input
+fromAB input = unsafeGet $ makeMatrixP <$> parse (XY.transformPpAB XY.ratio) input input
 
-makeMatrix' :: Num a => [[a]] -> Matrix a
-makeMatrix' m = fromLists m <-> fromLists [[0,0,1]]
+makeMatrixP :: Num a => [[a]] -> Matrix a
+makeMatrixP m = (submatrix 1 2 1 3 . fromLists) m <-> fromLists [[0,0,1]]
 
 -- | Get the xyz string of matrix
 --

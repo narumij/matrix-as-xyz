@@ -57,6 +57,13 @@ spec = do
      it "read A,B" $ do
        fromAB "A,B" `shouldBe` (identity 3)
 
+     it "row size" $ do
+       (nrows . fromXY $ "x,y") `shouldBe` 3
+
+     it "col size" $ do
+       (ncols . fromXY $ "x,y") `shouldBe` 3
+
+
    describe "Data.Matrix.AsXYZ.prettyXYZ" $ do
 
      it "show 0 (2x2)" $ do
